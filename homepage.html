@@ -179,7 +179,7 @@
     </div>
 
     <!-- BMI Modal -->
-    <div id="bmi-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    <div id="bmi-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
         <div class="card" style="max-width: 420px; width: 90%; margin: 1rem;">
             <div class="card-header">
                 <h3 class="card-title">Calculate BMI</h3>
@@ -188,12 +188,13 @@
                 <form id="bmi-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
                     <div>
                         <label class="form-label">Height (cm)</label>
-                        <input type="number" id="height-input" class="form-input" placeholder="170" required>
+                        <input type="number" id="height-input" class="form-input" placeholder="170" min="50" max="300" step="0.1" required>
                     </div>
                     <div>
                         <label class="form-label">Weight (kg)</label>
-                        <input type="number" id="weight-input" class="form-input" placeholder="70" required>
+                        <input type="number" id="weight-input" class="form-input" placeholder="70" min="20" max="500" step="0.1" required>
                     </div>
+                    <div id="bmi-error" class="error-message hidden" style="display: none;"></div>
                     <div style="display: flex; gap: 1rem;">
                         <button type="submit" class="btn-primary" style="flex: 1;">Calculate & Save</button>
                         <button type="button" onclick="closeBMIModal()" class="btn-secondary">Cancel</button>
@@ -231,19 +232,43 @@
         }
         
         function openBMIModal() {
-            document.getElementById('bmi-modal').classList.remove('hidden');
+            const modal = document.getElementById('bmi-modal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            // Reset form
+            document.getElementById('bmi-form').reset();
+            document.getElementById('bmi-error').classList.add('hidden');
+            document.getElementById('bmi-error').style.display = 'none';
+            // Focus on first input
+            setTimeout(() => document.getElementById('height-input').focus(), 100);
         }
         
         function closeBMIModal() {
-            document.getElementById('bmi-modal').classList.add('hidden');
+            const modal = document.getElementById('bmi-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            // Reset form
+            document.getElementById('bmi-form').reset();
+            document.getElementById('bmi-error').classList.add('hidden');
+            document.getElementById('bmi-error').style.display = 'none';
         }
         
         function openWeightModal() {
-            document.getElementById('weight-modal').classList.remove('hidden');
+            const modal = document.getElementById('weight-modal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            // Reset form
+            document.getElementById('weight-form').reset();
+            // Focus on input
+            setTimeout(() => document.getElementById('new-weight-input').focus(), 100);
         }
         
         function closeWeightModal() {
-            document.getElementById('weight-modal').classList.add('hidden');
+            const modal = document.getElementById('weight-modal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            // Reset form
+            document.getElementById('weight-form').reset();
         }
         
         async function logout() {

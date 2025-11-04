@@ -335,15 +335,48 @@ function setupEventListeners() {
     if (bmiForm) {
         bmiForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const height = parseFloat(document.getElementById('height-input').value);
-            const weight = parseFloat(document.getElementById('weight-input').value);
-            const bmi = calculateBMI(height, weight);
             
-            await saveHealthMetric(userId, 'bmi', bmi);
-            await saveHealthMetric(userId, 'weight', weight);
+            const heightInput = document.getElementById('height-input');
+            const weightInput = document.getElementById('weight-input');
+            const errorDiv = document.getElementById('bmi-error');
             
-            closeBMIModal();
-            await loadHealthMetrics();
+            const height = parseFloat(heightInput.value);
+            const weight = parseFloat(weightInput.value);
+            
+            // Validation
+            if (!height || height < 50 || height > 300) {
+                errorDiv.textContent = 'Please enter a valid height between 50-300 cm';
+                errorDiv.classList.remove('hidden');
+                errorDiv.style.display = 'block';
+                heightInput.focus();
+                return;
+            }
+            
+            if (!weight || weight < 20 || weight > 500) {
+                errorDiv.textContent = 'Please enter a valid weight between 20-500 kg';
+                errorDiv.classList.remove('hidden');
+                errorDiv.style.display = 'block';
+                weightInput.focus();
+                return;
+            }
+            
+            // Hide error if validation passes
+            errorDiv.classList.add('hidden');
+            errorDiv.style.display = 'none';
+            
+            try {
+                const bmi = calculateBMI(height, weight);
+                
+                await saveHealthMetric(userId, 'bmi', bmi);
+                await saveHealthMetric(userId, 'weight', weight);
+                
+                closeBMIModal();
+                await loadHealthMetrics();
+            } catch (error) {
+                errorDiv.textContent = 'Error saving BMI: ' + error.message;
+                errorDiv.classList.remove('hidden');
+                errorDiv.style.display = 'block';
+            }
         });
     }
     
@@ -352,24 +385,49 @@ function setupEventListeners() {
     if (weightForm) {
         weightForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const weight = parseFloat(document.getElementById('new-weight-input').value);
             
-            await saveHealthMetric(userId, 'weight', weight);
+            const weightInput = document.getElementById('new-weight-input');
+            const weight = parseFloat(weightInput.value);
             
-            closeWeightModal();
-            await loadHealthMetrics();
+            // Validation
+            if (!weight || weight < 20 || weight > 500) {
+                alert('Please enter a valid weight between 20-500 kg');
+                weightInput.focus();
+                return;
+            }
+            
+            try {
+                await saveHealthMetric(userId, 'weight', weight);
+                closeWeightModal();
+                await loadHealthMetrics();
+            } catch (error) {
+                alert('Error saving weight: ' + error.message);
+            }
         });
     }
 }
 
 function closeBMIModal() {
-    document.getElementById('bmi-modal').classList.add('hidden');
-    document.getElementById('bmi-modal').classList.remove('flex');
+    const modal = document.getElementById('bmi-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    // Reset form
+    const form = document.getElementById('bmi-form');
+    if (form) form.reset();
+    const errorDiv = document.getElementById('bmi-error');
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.style.display = 'none';
+    }
 }
 
 function closeWeightModal() {
-    document.getElementById('weight-modal').classList.add('hidden');
-    document.getElementById('weight-modal').classList.remove('flex');
+    const modal = document.getElementById('weight-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    // Reset form
+    const form = document.getElementById('weight-form');
+    if (form) form.reset();
 }
 
 // Make functions globally available
