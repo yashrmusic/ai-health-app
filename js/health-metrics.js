@@ -1,6 +1,7 @@
 // Health Metrics Management
 import { db } from './firebase-config.js';
 import { collection, addDoc, query, where, orderBy, limit, getDocs, getDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { demoDataManager } from './demo-data.js';
 
 export function calculateBMI(heightCm, weightKg) {
     const heightM = heightCm / 100;
@@ -53,7 +54,7 @@ export async function saveHealthMetric(userId, metricType, value) {
 }
 
 export async function getHealthMetrics(userId) {
-    if (!db) {
+    if (!db || demoDataManager.isDemoMode()) {
         // Fallback to localStorage
         const bmiData = JSON.parse(localStorage.getItem(`health_${userId}_bmi`) || '[]');
         const weightData = JSON.parse(localStorage.getItem(`health_${userId}_weight`) || '[]');
@@ -62,7 +63,7 @@ export async function getHealthMetrics(userId) {
             bmi: bmiData.length > 0 ? { value: bmiData[bmiData.length - 1].value } : null,
             weight: weightData.length > 0 ? { 
                 value: weightData[weightData.length - 1].value,
-                trend: 'No change'
+                trend: weightData[weightData.length - 1].trend || 'No change'
             } : null
         };
     }

@@ -109,7 +109,8 @@ export class PeriodTracker {
     // Get period history
     async getPeriodHistory(userId, limit = 12) {
         const { db } = await import('./firebase-config.js');
-        if (!db) {
+        const { demoDataManager } = await import('./demo-data.js');
+        if (!db || demoDataManager.isDemoMode()) {
             return JSON.parse(localStorage.getItem(`periods_${userId}`) || '[]')
                 .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
                 .slice(0, limit);

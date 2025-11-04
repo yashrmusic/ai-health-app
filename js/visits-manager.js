@@ -1,9 +1,10 @@
 // Visits Management
 import { db } from './firebase-config.js';
 import { collection, query, where, orderBy, limit, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { demoDataManager } from './demo-data.js';
 
 export async function getRecentVisits(userId, limitCount = 5) {
-    if (!db) {
+    if (!db || demoDataManager.isDemoMode()) {
         const visits = JSON.parse(localStorage.getItem(`visits_${userId}`) || '[]');
         return visits.sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate)).slice(0, limitCount);
     }
@@ -27,7 +28,7 @@ export async function getRecentVisits(userId, limitCount = 5) {
 }
 
 export async function getAllVisits(userId, category = null) {
-    if (!db) {
+    if (!db || demoDataManager.isDemoMode()) {
         const visits = JSON.parse(localStorage.getItem(`visits_${userId}`) || '[]');
         let filtered = visits;
         if (category) {
@@ -77,10 +78,10 @@ export async function getDoctorCategories(userId) {
 }
 
 export async function saveVisit(userId, visitData) {
-    if (!db) {
+    if (!db || demoDataManager.isDemoMode()) {
         const visits = JSON.parse(localStorage.getItem(`visits_${userId}`) || '[]');
         const newVisit = {
-            id: Date.now().toString(),
+            id: `visit-${Date.now()}`,
             ...visitData,
             createdAt: new Date().toISOString()
         };
@@ -123,7 +124,7 @@ export async function updateVisit(userId, visitId, updates) {
 }
 
 export async function deleteVisit(userId, visitId) {
-    if (!db) {
+    if (!db || demoDataManager.isDemoMode()) {
         const visits = JSON.parse(localStorage.getItem(`visits_${userId}`) || '[]');
         const filtered = visits.filter(v => v.id !== visitId);
         localStorage.setItem(`visits_${userId}`, JSON.stringify(filtered));

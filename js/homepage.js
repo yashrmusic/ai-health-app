@@ -3,6 +3,7 @@ import { getCurrentUser } from './auth.js';
 import { initializeFirebase } from './firebase-config.js';
 import { calculateBMI, saveHealthMetric, getHealthMetrics } from './health-metrics.js';
 import { getDoctorCategories, getRecentVisits } from './visits-manager.js';
+import { demoDataManager } from './demo-data.js';
 
 let db = null;
 let userId = null;
@@ -19,6 +20,19 @@ async function init() {
     }
     
     userId = user.uid;
+    
+    // Check if demo mode and initialize demo data if needed
+    if (demoDataManager.isDemoMode() || user.isDemo || !localStorage.getItem('demo_data_initialized')) {
+        demoDataManager.initializeDemoData();
+    }
+    
+    // Show demo mode indicator
+    const demoIndicator = document.getElementById('demo-mode-indicator');
+    if (demoIndicator && (demoDataManager.isDemoMode() || user.isDemo)) {
+        demoIndicator.classList.remove('hidden');
+        demoIndicator.style.display = 'block';
+    }
+    
     const { db: firestoreDb } = await initializeFirebase();
     db = firestoreDb;
     

@@ -21,14 +21,20 @@ export async function handleLogin(email, password) {
         // If Firebase not configured, use demo mode
         if (!auth) {
             console.warn('Firebase not configured. Using demo mode.');
+            const userId = 'demo-user';
             localStorage.setItem('user', JSON.stringify({
-                uid: 'demo-' + Date.now(),
+                uid: userId,
                 email: email,
                 displayName: email.split('@')[0],
                 isDemo: true
             }));
+            
+            // Initialize demo data
+            const { demoDataManager } = await import('./demo-data.js');
+            demoDataManager.initializeDemoData();
+            
             navigateTo('homepage.html');
-            return { uid: 'demo-user', email: email, isDemo: true };
+            return { uid: userId, email: email, isDemo: true };
         }
         
         const userCredential = await signInWithEmail(auth, email, password);
@@ -75,16 +81,22 @@ export async function handleGoogleLogin() {
         // If Firebase not configured, use demo mode
         if (!firebaseAuth) {
             console.warn('Firebase not configured. Using demo mode for Google Sign-In.');
+            const userId = 'demo-user';
             localStorage.setItem('user', JSON.stringify({
-                uid: 'demo-google-' + Date.now(),
+                uid: userId,
                 email: 'demo@example.com',
                 displayName: 'Demo User',
                 photoURL: null,
                 isDemo: true
             }));
+            
+            // Initialize demo data
+            const { demoDataManager } = await import('./demo-data.js');
+            demoDataManager.initializeDemoData();
+            
             alert('Demo mode: Firebase not configured. Please set up Firebase to use Google Sign-In.');
             navigateTo('homepage.html');
-            return { uid: 'demo-user', email: 'demo@example.com', isDemo: true };
+            return { uid: userId, email: 'demo@example.com', isDemo: true };
         }
         
         const result = await signInWithGoogle(firebaseAuth);

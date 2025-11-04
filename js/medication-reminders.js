@@ -173,7 +173,8 @@ export class MedicationReminders {
     // Get active reminders
     async getActiveReminders(userId) {
         const { db } = await import('./firebase-config.js');
-        if (!db) {
+        const { demoDataManager } = await import('./demo-data.js');
+        if (!db || demoDataManager.isDemoMode()) {
             return JSON.parse(localStorage.getItem(`medication_reminders_${userId}`) || '[]')
                 .filter(r => r.status === 'active');
         }

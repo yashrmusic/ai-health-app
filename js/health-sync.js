@@ -185,11 +185,20 @@ export class HealthDataSync {
 
     async getLatestMetric(userId, type, startDate) {
         const { db } = await import('./firebase-config.js');
-        if (!db) {
+        const { demoDataManager } = await import('./demo-data.js');
+        if (!db || demoDataManager.isDemoMode()) {
             const key = `health_sync_${userId}_${type}`;
             const data = JSON.parse(localStorage.getItem(key) || '[]');
+            // Also check health_metrics for demo data
+            if (data.length === 0 && demoDataManager.isDemoMode()) {
+                const metrics = JSON.parse(localStorage.getItem(`health_metrics_${userId}`) || '{}');
+                if (metrics[type] && metrics[type].length > 0) {
+                    return metrics[type].filter(d => new Date(d.startDate) >= startDate)
+                        .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0] || null;
+                }
+            }
             return data.filter(d => new Date(d.startDate) >= startDate)
-                      .sort((a, b) => b.startDate - a.startDate)[0] || null;
+                      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))[0] || null;
         }
 
         try {

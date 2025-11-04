@@ -207,8 +207,13 @@ export class HealthRecommendations {
     // Get active recommendations for user
     async getActiveRecommendations(userId) {
         const { db } = await import('./firebase-config.js');
-        if (!db) {
-            return JSON.parse(localStorage.getItem(`recommendations_${userId}`) || '[]');
+        const { demoDataManager } = await import('./demo-data.js');
+        if (!db || demoDataManager.isDemoMode()) {
+            const stored = JSON.parse(localStorage.getItem(`recommendations_${userId}`) || '[]');
+            // Flatten nested recommendations if needed
+            return Array.isArray(stored) && stored.length > 0 && Array.isArray(stored[0]) 
+                ? stored[0] 
+                : stored;
         }
 
         try {
