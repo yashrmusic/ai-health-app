@@ -39,6 +39,7 @@ async function init() {
     await loadDashboard();
     setupEventListeners();
     setupHealthImportListeners();
+    setupMoodListeners();
     
     // Initialize icons
     if (typeof lucide !== 'undefined') {
