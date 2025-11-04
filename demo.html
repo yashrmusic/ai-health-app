@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Health Vault - Demo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        
+        .glass-card {
+            background-color: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(55, 65, 81, 0.7);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-input {
+            background-color: rgba(55, 65, 81, 0.5);
+            border: 1px solid #4b5563;
+            color: #f3f4f6;
+            border-radius: 0.375rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #1e40af;
+        }
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        .form-file-input::file-selector-button {
+            margin-right: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: #374151;
+            color: #e5e7eb;
+            transition: background-color 0.2s;
+        }
+        .form-file-input::file-selector-button:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <!-- Main Container -->
+    <div class="container mx-auto max-w-5xl p-4 md:p-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-white">My Health Vault</h1>
+            <div id="auth-container">
+                <span class="text-sm text-gray-400">Demo Mode - All Features Shown</span>
+            </div>
+        </header>
+
+        <!-- Main App Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Add Visit Form -->
+            <div class="lg:col-span-1 glass-card p-6 h-fit">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Log New Visit</h2>
+                <form class="space-y-4">
+                    <div>
+                        <label for="doctor-name" class="block text-sm font-medium text-gray-300">Doctor Name</label>
+                        <input type="text" id="doctor-name" value="Dr. Priya Sharma" class="form-input mt-1 block w-full px-3 py-2" disabled>
+                    </div>
+
+                    <div>
+                        <label for="specialty" class="block text-sm font-medium text-gray-300">Specialty (e.g., Psychiatry, Ortho)</label>
+                        <input type="text" id="specialty" value="Psychiatry" class="form-input mt-1 block w-full px-3 py-2" disabled>
+                    </div>
+
+                    <div>
+                        <label for="visit-date" class="block text-sm font-medium text-gray-300">Visit Date</label>
+                        <input type="datetime-local" id="visit-date" value="2025-01-15T10:30" class="form-input mt-1 block w-full px-3 py-2" disabled>
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-300">Clinic Address</label>
+                        <input type="text" id="address" value="Apollo Hospital, Bangalore" class="form-input mt-1 block w-full px-3 py-2" disabled>
+                    </div>
+
+                    <div>
+                        <label for="payment" class="block text-sm font-medium text-gray-300">Payment Amount (INR)</label>
+                        <input type="number" id="payment" value="1500" class="form-input mt-1 block w-full px-3 py-2" disabled>
+                    </div>
+                    
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-300">Consultation Notes</label>
+                        <textarea id="notes" rows="4" class="form-input mt-1 block w-full px-3 py-2" disabled>Patient reported improved mood. Discussed medication adjustments. Follow-up in 2 weeks.</textarea>
+                    </div>
+
+                    <div>
+                        <label for="prescription-file" class="block text-sm font-medium text-gray-300">Upload Prescription (Image for AI Analysis)</label>
+                        <input type="file" id="prescription-file" accept="image/*" class="form-file-input mt-1 block w-full text-sm text-gray-400" disabled>
+                        <div class="flex items-center space-x-2 h-5 mt-2">
+                            <span class="text-sm text-green-400">✓ AI Analysis Complete: 3 medicines found</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="test-files" class="block text-sm font-medium text-gray-300">Upload Test Results (Multiple)</label>
+                        <input type="file" id="test-files" multiple accept="image/*,.pdf" class="form-file-input mt-1 block w-full text-sm text-gray-400" disabled>
+                        <p class="text-sm text-gray-500 mt-2">✓ 2 test results uploaded</p>
+                    </div>
+
+                    <button type="button" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-600 transition-colors opacity-50 cursor-not-allowed" disabled>
+                        Save Visit (Demo Mode)
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Visit List -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-semibold mb-4 text-white">My Visits</h2>
+                <div id="visit-list" class="space-y-4">
+                    
+                    <!-- Visit Card 1 - With AI Summary -->
+                    <div class="glass-card p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-semibold text-white">Dr. Priya Sharma</h3>
+                                <p class="text-blue-400 font-medium">Psychiatry</p>
+                                <p class="text-sm text-gray-400 mt-1">Wednesday, January 15, 2025 at 10:30 AM</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button title="Share Notes" class="text-gray-400 hover:text-blue-400 transition-colors">
+                                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                                </button>
+                                <button title="Delete Visit" class="text-gray-400 hover:text-red-500 transition-colors">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 border-t border-gray-700 pt-4 space-y-4">
+                            <!-- AI Summary -->
+                            <div>
+                                <h4 class="font-medium text-gray-200">AI Prescription Summary</h4>
+                                <p class="text-sm text-gray-400 mb-3">Prescription contains 3 medications for mood stabilization and anxiety management.</p>
+                                <div class="flow-root bg-gray-900/50 p-3 rounded-md">
+                                    <ul role="list" class="divide-y divide-gray-700">
+                                        <li class="py-3 sm:py-4">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <i data-lucide="pilcrow" class="w-5 h-5 text-blue-400"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-100 truncate">Sertraline 50mg</p>
+                                                    <p class="text-sm text-gray-400 truncate italic">Antidepressant for mood stabilization</p>
+                                                    <p class="text-sm text-gray-400 truncate">1 tablet daily after breakfast</p>
+                                                </div>
+                                                <a href="https://www.1mg.com/search/all?name=Sertraline" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-sm">
+                                                    1mg <i data-lucide="search" class="w-3 h-3 ml-1"></i>
+                                                </a>
+                                            </div>
+                                        </li>
+                                        <li class="py-3 sm:py-4">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <i data-lucide="pilcrow" class="w-5 h-5 text-blue-400"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-100 truncate">Clonazepam 0.5mg</p>
+                                                    <p class="text-sm text-gray-400 truncate italic">Anxiolytic for anxiety management</p>
+                                                    <p class="text-sm text-gray-400 truncate">Half tablet at bedtime as needed</p>
+                                                </div>
+                                                <a href="https://www.1mg.com/search/all?name=Clonazepam" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-sm">
+                                                    1mg <i data-lucide="search" class="w-3 h-3 ml-1"></i>
+                                                </a>
+                                            </div>
+                                        </li>
+                                        <li class="py-3 sm:py-4">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <i data-lucide="pilcrow" class="w-5 h-5 text-blue-400"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-100 truncate">Multivitamin Complex</p>
+                                                    <p class="text-sm text-gray-400 truncate italic">Supports overall health and wellness</p>
+                                                    <p class="text-sm text-gray-400 truncate">1 tablet daily with meals</p>
+                                                </div>
+                                                <a href="https://www.1mg.com/search/all?name=Multivitamin" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-sm">
+                                                    1mg <i data-lucide="search" class="w-3 h-3 ml-1"></i>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-gray-200">My Manual Notes</h4>
+                                <p class="text-gray-300 whitespace-pre-wrap">Patient reported improved mood. Discussed medication adjustments. Follow-up in 2 weeks.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-gray-200">Location</h4>
+                                <a href="https://maps.google.com/?q=Apollo Hospital, Bangalore" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Apollo Hospital, Bangalore</a>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-gray-200">Payment</h4>
+                                <p class="text-gray-300">₹1500</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-medium text-gray-200 mb-2">Original Files</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="#" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                                        View Prescription
+                                    </a>
+                                    <a href="#" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                                        Test Result 1
+                                    </a>
+                                    <a href="#" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                                        Test Result 2
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visit Card 2 - Orthopedic Visit -->
+                    <div class="glass-card p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-semibold text-white">Dr. Rajesh Kumar</h3>
+                                <p class="text-blue-400 font-medium">Orthopedics</p>
+                                <p class="text-sm text-gray-400 mt-1">Monday, December 20, 2024 at 2:00 PM</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button title="Share Notes" class="text-gray-400 hover:text-blue-400 transition-colors">
+                                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                                </button>
+                                <button title="Delete Visit" class="text-gray-400 hover:text-red-500 transition-colors">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 border-t border-gray-700 pt-4 space-y-4">
+                            <div>
+                                <h4 class="font-medium text-gray-200">My Manual Notes</h4>
+                                <p class="text-gray-300 whitespace-pre-wrap">Knee pain consultation. X-ray shows mild arthritis. Recommended physiotherapy exercises and pain management.</p>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-gray-200">Location</h4>
+                                <a href="https://maps.google.com/?q=Fortis Hospital, Mumbai" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Fortis Hospital, Mumbai</a>
+                            </div>
+
+                            <div>
+                                <h4 class="font-medium text-gray-200">Payment</h4>
+                                <p class="text-gray-300">₹2000</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-medium text-gray-200 mb-2">Original Files</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="#" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                                        View Prescription
+                                    </a>
+                                    <a href="#" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                                        X-Ray Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+

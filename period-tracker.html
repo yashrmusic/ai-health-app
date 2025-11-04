@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Period Tracker - My Health Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Navigation -->
+    <nav class="glass-card p-4 mb-6">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="navigateTo('homepage.html')" class="btn-secondary">← Home</button>
+                <h1 class="text-2xl font-bold text-white">Period Tracker</h1>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-6xl px-4 pb-8">
+        <!-- Current Status -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-white mb-4">Current Cycle Status</h2>
+            <div id="current-status" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Status will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-white mb-4">Quick Actions</h2>
+            <div class="flex flex-wrap gap-4">
+                <button onclick="logPeriodStart()" class="btn-primary">
+                    <i data-lucide="circle" class="w-4 h-4 inline mr-2"></i>
+                    Log Period Start
+                </button>
+                <button onclick="logPeriodEnd()" class="btn-secondary">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
+                    Log Period End
+                </button>
+                <button onclick="logSymptoms()" class="btn-secondary">
+                    <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>
+                    Log Symptoms
+                </button>
+            </div>
+        </div>
+
+        <!-- Predictions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="glass-card p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">Next Period Prediction</h3>
+                <div id="next-period" class="space-y-3">
+                    <!-- Prediction will be loaded here -->
+                </div>
+            </div>
+
+            <div class="glass-card p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">Ovulation Prediction</h3>
+                <div id="ovulation" class="space-y-3">
+                    <!-- Ovulation info will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Cycle Statistics -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-white mb-4">Cycle Statistics</h2>
+            <div id="cycle-stats" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Statistics will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Period History -->
+        <div class="glass-card p-6">
+            <h2 class="text-2xl font-semibold text-white mb-4">Period History</h2>
+            <div id="period-history" class="space-y-3">
+                <!-- History will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Period Start Modal -->
+    <div id="period-start-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass-card p-6 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-semibold text-white mb-4">Log Period Start</h3>
+            <form id="period-start-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Start Date</label>
+                    <input type="date" id="period-start-date" class="form-input w-full px-4 py-3" required>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="btn-primary flex-1">Save</button>
+                    <button type="button" onclick="closePeriodStartModal()" class="btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Symptoms Modal -->
+    <div id="symptoms-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass-card p-6 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-semibold text-white mb-4">Log Symptoms</h3>
+            <form id="symptoms-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Date</label>
+                    <input type="date" id="symptom-date" class="form-input w-full px-4 py-3" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Symptoms</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center"><input type="checkbox" value="cramps" class="mr-2"> Cramps</label>
+                        <label class="flex items-center"><input type="checkbox" value="bloating" class="mr-2"> Bloating</label>
+                        <label class="flex items-center"><input type="checkbox" value="mood_swings" class="mr-2"> Mood Swings</label>
+                        <label class="flex items-center"><input type="checkbox" value="headache" class="mr-2"> Headache</label>
+                        <label class="flex items-center"><input type="checkbox" value="fatigue" class="mr-2"> Fatigue</label>
+                        <label class="flex items-center"><input type="checkbox" value="backache" class="mr-2"> Backache</label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Severity</label>
+                    <select id="symptom-severity" class="form-input w-full px-4 py-3">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="btn-primary flex-1">Save</button>
+                    <button type="button" onclick="closeSymptomsModal()" class="btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/period-tracker-page.js"></script>
+    <script>
+        function navigateTo(path) {
+            window.location.href = path;
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,231 @@
+/* Main Stylesheet for My Health Vault */
+
+:root {
+    --primary-blue: #3b82f6;
+    --primary-green: #10b981;
+    --dark-bg: #111827;
+    --dark-card: rgba(31, 41, 55, 0.6);
+    --dark-border: rgba(55, 65, 81, 0.7);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--dark-bg);
+    color: #f3f4f6;
+    overflow-x: hidden;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: var(--dark-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--dark-border);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card-auth {
+    background: rgba(31, 41, 55, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Form Inputs */
+.form-input {
+    background-color: rgba(55, 65, 81, 0.5);
+    border: 1px solid #4b5563;
+    color: #f3f4f6;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background-color: rgba(55, 65, 81, 0.7);
+}
+
+.form-input::placeholder {
+    color: #6b7280;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(55, 65, 81, 0.7);
+    color: #f3f4f6;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid #4b5563;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: rgba(75, 85, 99, 0.8);
+}
+
+/* Health Metrics Cards */
+.health-metric-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+
+.health-metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 3px solid rgba(59, 130, 246, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-top-color: var(--primary-blue);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Category Badges */
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--primary-blue);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.category-badge.psychiatry { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: rgba(139, 92, 246, 0.3); }
+.category-badge.cardiology { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+.category-badge.orthopedics { background: rgba(251, 146, 60, 0.2); color: #fb923c; border-color: rgba(251, 146, 60, 0.3); }
+.category-badge.dermatology { background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); }
+
+/* Status Indicators */
+.status-improved {
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.status-same {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+.status-worse {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Audio Recorder */
+.recorder-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(55, 65, 81, 0.5);
+    border-radius: 0.5rem;
+    border: 1px solid #4b5563;
+}
+
+.recording-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ef4444;
+}
+
+.recording-indicator::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .health-metric-card {
+        padding: 1rem;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
