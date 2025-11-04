@@ -203,6 +203,18 @@ async function handleSaveVisit() {
             await uploadFiles(savedVisit.id, prescriptionFile, Array.from(testFiles));
         }
         
+        // Analyze meeting with AI Companion
+        const { AICompanion } = await import('./ai-companion.js');
+        const aiCompanion = new AICompanion();
+        
+        // Analyze notes/transcription for insights
+        if (visitData.notes) {
+            await aiCompanion.analyzeMeetingTranscription(userId, savedVisit.id, visitData.notes);
+        }
+        
+        // Re-initialize AI companion to update insights
+        await aiCompanion.initialize(userId);
+        
         // Reset form
         document.getElementById('visit-form').reset();
         document.getElementById('prescription-status').textContent = '';
@@ -214,7 +226,7 @@ async function handleSaveVisit() {
         // Reload visits
         await loadVisits();
         
-        alert('Visit saved successfully!');
+        alert('Visit saved successfully! Your AI companion has updated health insights based on this visit.');
     } catch (error) {
         console.error('Error saving visit:', error);
         alert('Error saving visit: ' + error.message);
