@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Health Vault</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* New: CRED-inspired dark background */
+            background-color: #111827; /* bg-gray-900 */
+        }
+        
+        /* Custom spinner for loading states */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6; /* bg-blue-500 */
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            /* FIXED: Corrected keyframes for rotation */
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom modal for messages */
+        .message-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Darker backdrop */
+            justify-content: center;
+            align-items: center;
+        }
+        .message-modal-content {
+            /* New: Dark mode modal */
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            margin: auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .message-modal-close {
+            /* New: Accent button */
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .message-modal-close:hover {
+            background-color: #2563eb; /* bg-blue-600 */
+        }
+
+        /* New: Glassmorphism Card Style */
+        .glass-card {
+            background-color: rgba(31, 41, 55, 0.6); /* bg-gray-800 with opacity */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(55, 65, 81, 0.7); /* border-gray-700 with opacity */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* New: Dark Mode Form Inputs */
+        .form-input {
+            background-color: rgba(55, 65, 81, 0.5); /* bg-gray-700/50 */
+            border: 1px solid #4b5563; /* border-gray-600 */
+            color: #f3f4f6; /* text-gray-100 */
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: sm;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* border-blue-500 */
+            box-shadow: 0 0 0 2px #1e40af; /* ring-blue-700/50 */
+        }
+        .form-input::placeholder {
+            color: #6b7280; /* placeholder-gray-500 */
+        }
+        /* Fix for dark mode date picker icon */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        /* New: Dark Mode File Input */
+        .form-file-input::file-selector-button {
+            margin-right: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: #374151; /* bg-gray-700 */
+            color: #e5e7eb; /* text-gray-200 */
+            transition: background-color 0.2s;
+        }
+        .form-file-input::file-selector-button:hover {
+            background-color: #4b5563; /* bg-gray-600 */
+        }
+    </style>
+</head>
+<body class="text-gray-200"> <!-- New: Default text light -->
+
+    <!-- Main Container -->
+    <div class="container mx-auto max-w-5xl p-4 md:p-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-white">My Health Vault</h1>
+            <div id="auth-container">
+                <button id="auth-button" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+                    Sign In
+                </button>
+                <span id="user-info" class="text-sm text-gray-400 hidden ml-4"></span>
+            </div>
+        </header>
+
+        <!-- Loading Spinner (Full App) -->
+        <div id="app-loader" class="flex justify-center items-center h-64">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Main App Content (Hidden by default) -->
+        <main id="app-content" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Add Visit Form -->
+            <div class="lg:col-span-1 glass-card p-6 h-fit"> <!-- New: glass-card -->
+                <h2 class="text-2xl font-semibold mb-4 text-white">Log New Visit</h2>
+                <form id="add-visit-form" class="space-y-4">
+                    <div>
+                        <label for="doctor-name" class="block text-sm font-medium text-gray-300">Doctor Name</label>
+                        <input type="text" id="doctor-name" required class="form-input mt-1 block w-full px-3 py-2"> <!-- New: form-input -->
+                    </div>
+
+                    <div>
+                        <label for="specialty" class="block text-sm font-medium text-gray-300">Specialty (e.g., Psychiatry, Ortho)</label>
+                        <input type="text" id="specialty" required class="form-input mt-1 block w-full px-3 py-2"> <!-- New: form-input -->
+                    </div>
+
+                    <div>
+                        <label for="visit-date" class="block text-sm font-medium text-gray-300">Visit Date</label>
+                        <input type="datetime-local" id="visit-date" required class="form-input mt-1 block w-full px-3 py-2"> <!-- New: form-input -->
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-300">Clinic Address</label>
+                        <input type="text" id="address" class="form-input mt-1 block w-full px-3 py-2" placeholder="Optional"> <!-- New: form-input -->
+                    </div>
+
+                    <div>
+                        <label for="payment" class="block text-sm font-medium text-gray-300">Payment Amount (INR)</label>
+                        <input type="number" id="payment" class="form-input mt-1 block w-full px-3 py-2" placeholder="Optional"> <!-- New: form-input -->
+                    </div>
+                    
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-300">Consultation Notes</label>
+                        <textarea id="notes" rows="4" class="form-input mt-1 block w-full px-3 py-2" placeholder="Symptoms, discussion, next steps..."></textarea> <!-- New: form-input -->
+                    </div>
+
+                    <div>
+                        <label for="prescription-file" class="block text-sm font-medium text-gray-300">Upload Prescription (Image for AI Analysis)</label>
+                        <input type="file" id="prescription-file" accept="image/*" class="form-file-input mt-1 block w-full text-sm text-gray-400"> <!-- New: form-file-input -->
+                        <!-- NEW: AI Analysis Status -->
+                        <div id="prescription-analysis-status" class="flex items-center space-x-2 h-5 mt-2">
+                            <div id="prescription-spinner" class="spinner w-4 h-4 hidden" style="border-left-color: #3b82f6; border-width: 2px;"></div> <!-- New: blue spinner -->
+                            <span id="prescription-status-text" class="text-sm text-gray-400"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="test-files" class="block text-sm font-medium text-gray-300">Upload Test Results (Multiple)</label>
+                        <input type="file" id="test-files" multiple accept="image/*,.pdf" class="form-file-input mt-1 block w-full text-sm text-gray-400"> <!-- New: form-file-input -->
+                    </div>
+
+                    <button type="submit" id="save-visit-button" class="w-full flex justify-center items-center bg-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-blue-600 transition-colors disabled:bg-gray-500"> <!-- New: blue button -->
+                        <span id="save-button-text">Save Visit</span>
+                        <div id="save-spinner" class="spinner w-5 h-5 ml-2 hidden" style="border-left-color: white; border-width: 2px;"></div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Visit List -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-semibold mb-4 text-white">My Visits</h2>
+                <div id="visit-list" class="space-y-4">
+                    <!-- Visit cards will be injected here -->
+                    <p id="no-visits-message" class="text-gray-400">You haven't logged any visits yet.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="message-modal">
+        <div class="message-modal-content">
+            <h3 id="message-title" class="text-lg font-semibold mb-2 text-white">Notice</h3> <!-- Fixed text color -->
+            <p id="message-text" class="text-gray-300"></p> <!-- Fixed text color -->
+            <button id="message-close-button" class="message-modal-close">OK</button>
+        </div>
+    </div>
+    
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            setPersistence,
+            GoogleAuthProvider,
+            signInWithPopup,
+            browserLocalPersistence,
+            signInWithCustomToken, // Import missing functions
+            signInAnonymously // Import missing functions
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            query, 
+            onSnapshot, 
+            doc, 
+            deleteDoc, 
+            updateDoc,
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // --- Global Config & Variables ---
+        // These are provided by the environment
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // FIX: Use the raw appId. Do NOT sanitize it. This ensures the path matches the auth token's appId.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-health-vault';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, storage;
+        let userId = null;
+        let visitsUnsubscribe = null; // To stop listener on sign-out
+        let analyzedPrescriptionData = null; // Holds AI data before save
+
+        // --- DOM Elements ---
+        const authButton = document.getElementById('auth-button');
+        const userInfoDisplay = document.getElementById('user-info');
+        const appLoader = document.getElementById('app-loader');
+        const appContent = document.getElementById('app-content');
+        const addVisitForm = document.getElementById('add-visit-form');
+        const saveVisitButton = document.getElementById('save-visit-button');
+        const saveButtonText = document.getElementById('save-button-text');
+        const saveSpinner = document.getElementById('save-spinner');
+        const visitList = document.getElementById('visit-list');
+        const noVisitsMessage = document.getElementById('no-visits-message');
+        
+        // NEW: Prescription AI Elements
+        const prescriptionFileIn = document.getElementById('prescription-file');
+        const prescriptionSpinner = document.getElementById('prescription-spinner');
+        const prescriptionStatusText = document.getElementById('prescription-status-text');
+
+        // Modal elements
+        const messageModal = document.getElementById('message-modal');
+        const messageTitle = document.getElementById('message-title');
+        const messageText = document.getElementById('message-text');
+        const messageCloseButton = document.getElementById('message-close-button');
+
+        // --- Utility Functions ---
+
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageModal.style.display = 'flex';
+        }
+
+        function hideMessage() {
+            messageModal.style.display = 'none';
+        }
+        
+        /**
+         * Converts a File object to a base64 string
+         */
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // Returns the base64 string, stripping the data URL prefix
+                    resolve(reader.result.split(',')[1]);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function getVisitCollectionPath(uid) {
+            // Uses the raw appId
+            return `artifacts/${appId}/users/${uid}/visits`;
+        }
+
+        // FIX: Re-introduce the /files segment to match storage security rules
+        function getStorageBasePath(uid) {
+            // Uses the raw appId
+            return `artifacts/${appId}/users/${uid}/files`;
+        }
+
+        function showSaveLoading(isLoading) {
+            saveVisitButton.disabled = isLoading;
+            saveButtonText.style.display = isLoading ? 'none' : 'inline';
+            saveSpinner.style.display = isLoading ? 'inline-block' : 'none';
+        }
+
+        /**
+         * Calls Gemini API to analyze a prescription image
+         */
+        async function analyzePrescription(base64ImageData, mimeType) {
+            prescriptionSpinner.classList.remove('hidden');
+            prescriptionStatusText.textContent = 'Analyzing prescription...';
+            analyzedPrescriptionData = null; // Clear old data
+
+            const apiKey = ""; // Will be provided by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "You are a helpful medical assistant. Analyze the provided prescription image and extract the list of medicines. For each medicine, provide its name, a simple one-sentence explanation of its purpose, and the dosage instructions. Also provide a brief overall summary of the prescription. Respond ONLY with the requested JSON object.";
+
+            const userPrompt = "Analyze this prescription and return the JSON.";
+
+            // Define the JSON schema for the response
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    "summary": { "type": "STRING" },
+                    "medicines": {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                "name": { "type": "STRING" },
+                                "purpose": { "type": "STRING" },
+                                "dosage": { "type": "STRING" }
+                            },
+                            required: ["name", "purpose", "dosage"]
+                        }
+                    }
+                },
+                required: ["summary", "medicines"]
+            };
+
+            const payload = {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: userPrompt },
+                            {
+                                inlineData: {
+                                    mimeType: mimeType,
+                                    data: base64ImageData
+                                }
+                            }
+                        ]
+                    }
+                ],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                }
+            };
+
+            try {
+                // Implement exponential backoff for retries
+                let response;
+                let retries = 0;
+                const maxRetries = 3;
+                let delay = 1000;
+
+                while (retries < maxRetries) {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        break; // Success
+                    }
+
+                    if (response.status === 429 || response.status >= 500) {
+                        // Throttling or server error, wait and retry
+                        console.log(`Retrying API call (attempt ${retries + 1})...`);
+                        retries++;
+                        await new Promise(res => setTimeout(res, delay));
+                        delay *= 2;
+                    } else {
+                        // Other client-side error, don't retry
+                        throw new Error(`API Error: ${response.statusText}`);
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`API call failed after ${maxRetries} retries.`);
+                }
+
+                const result = await response.json();
+                
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const jsonText = candidate.content.parts[0].text;
+                    analyzedPrescriptionData = JSON.parse(jsonText);
+                    
+                    const count = analyzedPrescriptionData.medicines?.length || 0;
+                    prescriptionStatusText.textContent = `Analysis complete: ${count} medicines found.`;
+                    console.log("AI Analysis:", analyzedPrescriptionData);
+
+                } else {
+                    throw new Error("Invalid response structure from AI.");
+                }
+
+            } catch (error) {
+                console.error("Error analyzing prescription:", error);
+                prescriptionStatusText.textContent = 'AI analysis failed.';
+                analyzedPrescriptionData = null;
+            } finally {
+                prescriptionSpinner.classList.add('hidden');
+            }
+        }
+
+        // --- Core App Functions ---
+
+        /**
+         * Initializes Firebase and sets up auth listener
+         */
+        async function initialize() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                storage = getStorage(app);
+                setLogLevel('Debug'); // Enable Firestore logging
+
+                // Use local persistence to stay logged in
+                await setPersistence(auth, browserLocalPersistence);
+
+                // --- FIX: Add automatic sign-in logic ---
+                // This replaces the Google Sign-In popup, which was causing the auth/unauthorized-domain error.
+                // We now use the token provided by the environment or fall back to anonymous.
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                        console.log("Signed in with custom token.");
+                    } else {
+                        console.log("No custom token, signing in anonymously.");
+                        await signInAnonymously(auth);
+                    }
+                } catch (authError) {
+                    console.error("Authentication Error:", authError);
+                    showMessage("Auth Error", "Could not sign you in. Falling back to anonymous mode.");
+                    if (!auth.currentUser) {
+                         await signInAnonymously(auth);
+                    }
+                }
+                // --- End of FIX ---
+
+                onAuthStateChanged(auth, (user) => {
+                    appLoader.style.display = 'none';
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User signed in:", userId, user.displayName);
+                        authButton.textContent = 'Sign Out';
+                        authButton.disabled = false;
+                        // Display name might be null for custom token or anonymous
+                        const displayName = user.displayName || (user.isAnonymous ? 'Anonymous User' : 'Logged In User');
+                        userInfoDisplay.textContent = `Hi, ${displayName} (ID: ${user.uid.substring(0, 6)}...)`;
+                        userInfoDisplay.classList.remove('hidden');
+                        appContent.classList.remove('hidden');
+                        attachFormListener();
+                        loadVisits();
+                    } else {
+                        userId = null;
+                        console.log("User signed out.");
+                        authButton.textContent = 'Signed Out';
+                        authButton.disabled = true; // Can't sign back in via button
+                        userInfoDisplay.classList.add('hidden');
+                        appContent.classList.add('hidden');
+                        if (visitsUnsubscribe) {
+                            visitsUnsubscribe(); // Stop listening to data
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase Init Error:", error);
+                showMessage("Initialization Error", "Could not connect to services. Please refresh.");
+            }
+        }
+
+        /**
+         * Handles the sign-in/sign-out button click
+         */
+        async function handleAuthClick() {
+            if (!auth) return;
+            
+            if (auth.currentUser) {
+                // Sign out
+                await auth.signOut();
+            } else {
+                // --- FIX: Removed the Google Sign-In logic ---
+                // This 'else' block was triggering the signInWithPopup, causing the error.
+                // Sign-in is now handled automatically on page load.
+                console.log("User is already signed out.");
+                authButton.disabled = true;
+                // --- End of FIX ---
+            }
+        }
+
+        /**
+         * Attaches the listener to the 'Add Visit' form
+         */
+        function attachFormListener() {
+            if (addVisitForm.dataset.listenerAttached) return; // Prevent multiple listeners
+
+            // NEW: Add listener for prescription file input
+            prescriptionFileIn.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    prescriptionStatusText.textContent = '';
+                    analyzedPrescriptionData = null;
+                    return;
+                }
+
+                // Check file type for API
+                if (!file.type.startsWith('image/')) {
+                    prescriptionStatusText.textContent = 'Please upload an image file for analysis.';
+                    analyzedPrescriptionData = null;
+                    return;
+                }
+                
+                try {
+                    const base64Data = await fileToBase64(file);
+                    await analyzePrescription(base64Data, file.type);
+                } catch (error) {
+                    console.error("Error in file-to-base64 conversion:", error);
+                    prescriptionStatusText.textContent = 'Error processing file.';
+                }
+            });
+
+            addVisitForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!userId) {
+                    showMessage("Error", "You must be signed in to save a visit.");
+                    return;
+                }
+
+                showSaveLoading(true);
+
+                // 1. Get form data
+                const visitData = {
+                    doctorName: document.getElementById('doctor-name').value,
+                    specialty: document.getElementById('specialty').value,
+                    visitDate: document.getElementById('visit-date').value,
+                    address: document.getElementById('address').value,
+                    paymentAmount: document.getElementById('payment').value || null,
+                    notes: document.getElementById('notes').value,
+                    createdAt: new Date().toISOString(),
+                    prescriptionImageUrl: null,
+                    testResultUrls: [],
+                    aiSummary: analyzedPrescriptionData || null // ADDED THIS
+                };
+
+                const prescFile = document.getElementById('prescription-file').files[0];
+                const testFiles = document.getElementById('test-files').files;
+
+                try {
+                    // 2. Create the visit document *first* to get an ID
+                    const docRef = await addDoc(collection(db, getVisitCollectionPath(userId)), visitData);
+                    const visitId = docRef.id;
+
+                    // 3. Handle File Uploads
+                    let prescriptionUrl = null;
+                    if (prescFile) {
+                        console.log("Uploading prescription...");
+                        prescriptionUrl = await handleFileUpload(prescFile, visitId, 'prescription');
+                    }
+
+                    let testUrls = [];
+                    if (testFiles.length > 0) {
+                        console.log(`Uploading ${testFiles.length} test results...`);
+                        const uploadPromises = Array.from(testFiles).map(file => 
+                            handleFileUpload(file, visitId, 'testResult')
+                        );
+                        testUrls = await Promise.all(uploadPromises);
+                    }
+
+                    // 4. Update the visit doc with file URLs
+                    await updateDoc(docRef, {
+                        prescriptionImageUrl: prescriptionUrl,
+                        testResultUrls: testUrls
+                        // Note: aiSummary was already saved during addDoc
+                    });
+
+                    showMessage("Success", "Your visit has been saved!");
+                    addVisitForm.reset();
+                    prescriptionStatusText.textContent = ''; // Clear status
+                    analyzedPrescriptionData = null; // Clear data
+
+                } catch (error) {
+                    console.error("Error saving visit:", error);
+                    showMessage("Save Error", `Could not save visit: ${error.message}`);
+                } finally {
+                    showSaveLoading(false);
+                }
+            });
+            addVisitForm.dataset.listenerAttached = true;
+        }
+
+        /**
+         * Reusable function to upload a file to Firebase Storage
+         */
+        async function handleFileUpload(file, visitId, fileType) {
+            if (!userId) throw new Error("User not authenticated");
+
+            // FIX: Use a flatter path structure *within* the /files directory
+            // This path uses the raw appId via getStorageBasePath()
+            const storagePath = `${getStorageBasePath(userId)}/${visitId}-${fileType}-${file.name}`;
+            const storageRef = ref(storage, storagePath);
+
+            try {
+                const snapshot = await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                console.log(`File uploaded to: ${downloadURL}`);
+                return downloadURL;
+            } catch (error) {
+                console.error(`Error uploading file (${file.name}):`, error);
+                throw new Error(`Failed to upload ${file.name}`);
+            }
+        }
+
+        /**
+         * Loads all visits for the current user and listens for changes
+         */
+        function loadVisits() {
+            if (!userId) return;
+
+            // Unsubscribe from previous listener if it exists
+            if (visitsUnsubscribe) {
+                visitsUnsubscribe();
+            }
+
+            const q = query(collection(db, getVisitCollectionPath(userId)));
+
+            visitsUnsubscribe = onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    visitList.innerHTML = ''; // Clear old list
+                    noVisitsMessage.style.display = 'block';
+                    return;
+                }
+
+                noVisitsMessage.style.display = 'none';
+                
+                const visits = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Sort in JS to avoid needing a Firestore index (most recent first)
+                visits.sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate));
+
+                visitList.innerHTML = ''; // Clear list before re-rendering
+                visits.forEach(renderVisitCard);
+
+            }, (error) => {
+                console.error("Error loading visits:", error);
+                showMessage("Data Error", "Could not load visit history.");
+            });
+        }
+
+        /**
+         * Renders a single visit card into the DOM
+         */
+        function renderVisitCard(visit) {
+            const card = document.createElement('div');
+            card.className = 'glass-card p-5'; // New: glass-card
+            
+            const visitDate = new Date(visit.visitDate).toLocaleString('en-IN', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+            });
+
+            // --- Files HTML ---
+            let filesHtml = '';
+            if (visit.prescriptionImageUrl) {
+                filesHtml += `
+                    <a href="${visit.prescriptionImageUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                        View Prescription
+                    </a>
+                `;
+            }
+            if (visit.testResultUrls && visit.testResultUrls.length > 0) {
+                filesHtml += visit.testResultUrls.map((url, index) => `
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 mr-4">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>
+                        Test Result ${index + 1}
+                    </a>
+                `).join('');
+            }
+            if (!filesHtml) {
+                filesHtml = '<p class="text-sm text-gray-500">No files uploaded.</p>';
+            }
+
+            // --- NEW: AI Summary HTML ---
+            let aiSummaryHtml = '';
+            if (visit.aiSummary && visit.aiSummary.medicines && visit.aiSummary.medicines.length > 0) {
+                const medicineListHtml = visit.aiSummary.medicines.map(med => `
+                    <li class="py-3 sm:py-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <!-- Using a different icon for meds -->
+                                <i data-lucide="pilcrow" class="w-5 h-5 text-blue-400"></i> <!-- New: blue icon -->
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-100 truncate">${med.name}</p>
+                                <p class="text-sm text-gray-400 truncate italic">${med.purpose}</p>
+                                <p class="text-sm text-gray-400 truncate">${med.dosage}</p>
+                            </div>
+                            <a href="https://www.1mg.com/search/all?name=${encodeURIComponent(med.name)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-sm">
+                                1mg <i data-lucide="search" class="w-3 h-3 ml-1"></i>
+                            </a>
+                        </div>
+                    </li>
+                `).join('');
+
+                aiSummaryHtml = `
+                    <div>
+                        <h4 class="font-medium text-gray-200">AI Prescription Summary</h4>
+                        <p class="text-sm text-gray-400 mb-3">${visit.aiSummary.summary || 'AI analysis of your prescription.'}</p>
+                        <div class="flow-root bg-gray-900/50 p-3 rounded-md"> <!-- New: darker summary bg -->
+                            <ul role="list" class="divide-y divide-gray-700"> <!-- New: darker divider -->
+                                ${medicineListHtml}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Card Content ---
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-semibold text-white">${visit.doctorName}</h3>
+                        <p class="text-blue-400 font-medium">${visit.specialty}</p> <!-- New: blue accent -->
+                        <p class="text-sm text-gray-400 mt-1">${visitDate}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button data-action="share" data-id="${visit.id}" title="Share Notes" class="text-gray-400 hover:text-blue-400 transition-colors"> <!-- New: blue hover -->
+                            <i data-lucide="share-2" class="w-5 h-5"></i>
+                        </button>
+                        <button data-action="delete" data-id="${visit.id}" title="Delete Visit" class="text-gray-400 hover:text-red-500 transition-colors"> <!-- New: red hover -->
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 border-t border-gray-700 pt-4 space-y-4"> <!-- Increased spacing & New: darker border -->
+                    ${aiSummaryHtml} <!-- ADDED AI SUMMARY -->
+
+                    ${visit.notes ? `
+                        <div>
+                            <h4 class="font-medium text-gray-200">My Manual Notes</h4>
+                            <p class="text-gray-300 whitespace-pre-wrap">${visit.notes}</p>
+                        </div>
+                    ` : ''}
+
+                    ${visit.address ? `
+                        <div>
+                            <h4 class="font-medium text-gray-200">Location</h4>
+                            <a href="https://maps.google.com/?q=${encodeURIComponent(visit.address)}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${visit.address}</a> <!-- New: blue link -->
+                        </div>
+                    ` : ''}
+
+                    ${visit.paymentAmount ? `
+                        <div>
+                            <h4 class="font-medium text-gray-200">Payment</h4>
+                            <p class="text-gray-300">₹${visit.paymentAmount}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div>
+                        <h4 classs="font-medium text-gray-200 mb-2">Original Files</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${filesHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners for buttons
+            card.querySelector('[data-action="delete"]').addEventListener('click', () => handleDelete(visit.id));
+            card.querySelector('[data-action="share"]').addEventListener('click', () => handleShare(visit));
+
+            visitList.appendChild(card);
+
+            // Render icons
+            // FIX: Added check to ensure lucide object is available
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            } else {
+                console.warn("lucide.createIcons() called before lucide was defined.");
+            }
+        }
+
+        /**
+         * Deletes a visit document
+         */
+        async function handleDelete(visitId) {
+            if (!userId) return;
+            // In a real app, you'd show a custom confirmation modal here.
+            // For now, we'll just delete.
+            console.log(`Deleting visit: ${visitId}`);
+            try {
+                await deleteDoc(doc(db, getVisitCollectionPath(userId), visitId));
+                // Note: This doesn't delete files from Storage, which is more complex
+                // and should be handled to prevent orphaned files.
+                showMessage("Deleted", "Visit removed.");
+            } catch (error) {
+                console.error("Error deleting visit:", error);
+                showMessage("Error", "Could not delete visit.");
+            }
+        }
+
+        /**
+         * Shares visit notes using the Web Share API
+         */
+        async function handleShare(visit) {
+            let aiText = '';
+            if (visit.aiSummary && visit.aiSummary.medicines) {
+                aiText = "\n\n--- AI Summary ---\n";
+                aiText += `${visit.aiSummary.summary}\n\nMedicines:\n`;
+                visit.aiSummary.medicines.forEach(med => {
+                    aiText += `- ${med.name} (${med.dosage}): ${med.purpose}\n`;
+                });
+            }
+
+            const shareData = {
+                title: `My visit with ${visit.doctorName} (${visit.specialty})`,
+                // FIXED: Removed the invalid '\D' escape sequence
+                text: `Visit Date: ${new Date(visit.visitDate).toLocaleDateString('en-IN')}\n\nDoctor: ${visit.doctorName}\nSpecialty: ${visit.specialty}\n\n--- My Notes ---\n${visit.notes || 'No notes added.'}${aiText}`,
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    console.log("Shared successfully");
+                } catch (err) {
+                    console.error("Share failed:", err.message);
+                }
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                // We've been asked not to use alert(), so we'll show the text in our modal
+                showMessage("Share Visit Notes", "Your browser doesn't support sharing. You can copy the notes below:\n\n" + shareData.text);
+            }
+        }
+
+        // --- Initial Load ---
+        authButton.addEventListener('click', handleAuthClick);
+        messageCloseButton.addEventListener('click', hideMessage);
+        
+        initialize();
+
+    </script>
+</body>
+</html>
+
