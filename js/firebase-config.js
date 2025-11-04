@@ -112,17 +112,9 @@ export async function signInWithGoogle(auth) {
         prompt: 'select_account'
     });
     
-    try {
-        // Try popup first, fallback to redirect
-        return await signInWithPopup(auth, provider);
-    } catch (error) {
-        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-            // Fallback to redirect
-            await signInWithRedirect(auth, provider);
-            return null; // Will be handled by redirect
-        }
-        throw error;
-    }
+    // Use redirect for better reliability (works across all browsers and devices)
+    await signInWithRedirect(auth, provider);
+    return null; // Will be handled by redirect result
 }
 
 export async function getGoogleRedirectResult(auth) {

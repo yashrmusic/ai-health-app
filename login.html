@@ -47,17 +47,20 @@
             <div>
                 <label for="password" class="form-label">Password</label>
                 <input type="password" id="password" required class="form-input" placeholder="Enter your password">
+                <div id="password-requirements" class="password-requirements hidden">
+                    <small>Password must be at least 6 characters</small>
+                </div>
             </div>
             
-            <button type="submit" class="btn-primary">
+            <button type="submit" class="btn-primary" id="submit-btn">
                 Sign In
             </button>
         </form>
         
         <div class="mt-6 text-center">
             <p class="text-secondary" style="font-size: 0.875rem;">
-                Don't have an account? 
-                <a href="#" class="text-primary" style="color: var(--primary-red); font-weight: 600; text-decoration: none;">Sign Up</a>
+                <span id="toggle-text">Don't have an account?</span>
+                <a href="#" id="toggle-auth" class="text-primary" style="color: var(--primary-red); font-weight: 600; text-decoration: none; cursor: pointer;">Sign Up</a>
             </p>
         </div>
         
@@ -74,6 +77,20 @@
         }
         .mt-6 {
             margin-top: 1.5rem;
+        }
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .password-requirements small {
+            color: #6b7280;
+        }
+        .text-primary {
+            transition: opacity 0.2s;
+        }
+        .text-primary:hover {
+            opacity: 0.8;
         }
     </style>
 </body>
