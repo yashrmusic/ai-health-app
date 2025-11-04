@@ -83,6 +83,126 @@ async function loadDashboard() {
     await loadHealthTrends();
 }
 
+async function loadAICompanionInsights() {
+    const { AICompanion } = await import('./ai-companion.js');
+    const aiCompanion = new AICompanion();
+    const insights = await aiCompanion.getHealthInsights(userId);
+    const reminders = await aiCompanion.generateSmartReminders(userId);
+    const conditions = await aiCompanion.getDetectedConditions(userId);
+    
+    const container = document.getElementById('ai-companion-insights');
+    if (!container) return;
+    
+    if (insights.length === 0 && reminders.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">No insights yet. Log doctor visits to get personalized health insights.</p>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Show detected conditions
+    if (conditions.length > 0) {
+        html += `
+            <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Detected Health Conditions</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    ${conditions.map(condition => `
+                        <span style="padding: 0.375rem 0.75rem; background: var(--primary-red); color: white; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600;">
+                            ${condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Show insights
+    insights.forEach(insight => {
+        html += `
+            <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm); border-left: 4px solid ${insight.priority === 'high' ? '#DC2626' : '#F59E0B'};">
+                <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">${insight.title || 'Health Insight'}</h4>
+                ${insight.content.map(content => `
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        ${content.text}
+                    </p>
+                `).join('')}
+                <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.5rem;">
+                    ${new Date(insight.date).toLocaleDateString()}
+                </p>
+            </div>
+        `;
+    });
+    
+    // Show smart reminders
+    if (reminders.length > 0) {
+        html += `
+            <div style="margin-top: 1.5rem;">
+                <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Smart Reminders</h4>
+                ${reminders.slice(0, 3).map(reminder => `
+                    <div style="padding: 0.75rem; background: ${reminder.priority === 'high' ? '#FEF2F2' : '#FEF3C7'}; border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+                        <p style="font-weight: 600; color: var(--text-primary); font-size: 0.875rem;">${reminder.title}</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">${reminder.message}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+async function loadDietRecommendations() {
+    const { AICompanion } = await import('./ai-companion.js');
+    const aiCompanion = new AICompanion();
+    const recommendations = await aiCompanion.getDietRecommendations(userId);
+    
+    const container = document.getElementById('diet-recommendations');
+    if (!container) return;
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">Calculate your BMI and log health conditions to get personalized meal recommendations.</p>';
+        return;
+    }
+    
+    // Group by meal type
+    const grouped = {};
+    recommendations.forEach(rec => {
+        if (!grouped[rec.meal]) {
+            grouped[rec.meal] = [];
+        }
+        grouped[rec.meal].push(rec);
+    });
+    
+    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">';
+    
+    Object.keys(grouped).forEach(meal => {
+        const mealRecs = grouped[meal];
+        const primaryRec = mealRecs.find(r => r.conditionSpecific) || mealRecs[0];
+        
+        html += `
+            <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <h4 style="font-weight: 600; color: var(--text-primary);">${meal}</h4>
+                    ${primaryRec.conditionSpecific ? '<span style="font-size: 0.75rem; color: var(--primary-red); font-weight: 600;">Condition Specific</span>' : ''}
+                </div>
+                <p style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">${primaryRec.suggestion}</p>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${primaryRec.reason}</p>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">
+                    <span>Calories: ${primaryRec.calories}</span>
+                    <span>Protein: ${primaryRec.macronutrients.protein}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-tertiary);">
+                    <span>Carbs: ${primaryRec.macronutrients.carbs}</span>
+                    <span>Fat: ${primaryRec.macronutrients.fat}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
 async function loadHealthMetrics() {
     const metrics = await getHealthMetrics(userId);
     
@@ -518,6 +638,93 @@ async function connectGoogleFit() {
     }
 }
 
+async function importSamsungHealth() {
+    const fileInput = document.getElementById('samsung-health-file');
+    const statusDiv = document.getElementById('samsung-health-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Importing Samsung Health data...';
+        statusDiv.style.color = '#10b981';
+        
+        const { DeviceImporter } = await import('./device-import.js');
+        const importer = new DeviceImporter();
+        const result = await importer.importSamsungHealth(fileInput.files[0], userId);
+        
+        statusDiv.textContent = `✓ Imported data from ${result.metrics.length} metrics`;
+        statusDiv.style.color = '#10b981';
+        
+        await loadCurrentBodyHealth();
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function importFitbit() {
+    const fileInput = document.getElementById('fitbit-file');
+    const statusDiv = document.getElementById('fitbit-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Importing Fitbit data...';
+        statusDiv.style.color = '#10b981';
+        
+        const { DeviceImporter } = await import('./device-import.js');
+        const importer = new DeviceImporter();
+        const result = await importer.importFitbit(fileInput.files[0], userId);
+        
+        statusDiv.textContent = `✓ Imported data from ${result.metrics.length} metrics`;
+        statusDiv.style.color = '#10b981';
+        
+        await loadCurrentBodyHealth();
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function importSleepApp() {
+    const fileInput = document.getElementById('sleep-app-file');
+    const statusDiv = document.getElementById('sleep-app-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Importing sleep data...';
+        statusDiv.style.color = '#10b981';
+        
+        const { DeviceImporter } = await import('./device-import.js');
+        const importer = new DeviceImporter();
+        const result = await importer.importSleepApp(fileInput.files[0], userId);
+        
+        statusDiv.textContent = `✓ Imported sleep data successfully`;
+        statusDiv.style.color = '#10b981';
+        
+        await loadCurrentBodyHealth();
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
 async function addManualHealthData() {
     const form = document.getElementById('manual-health-form');
     const statusDiv = document.getElementById('manual-entry-status');
@@ -577,6 +784,9 @@ window.openHealthImportModal = openHealthImportModal;
 window.closeHealthImportModal = closeHealthImportModal;
 window.importAppleHealth = importAppleHealth;
 window.connectGoogleFit = connectGoogleFit;
+window.importSamsungHealth = importSamsungHealth;
+window.importFitbit = importFitbit;
+window.importSleepApp = importSleepApp;
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);

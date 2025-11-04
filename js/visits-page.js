@@ -77,7 +77,7 @@ function setupEventListeners() {
         }
     });
     
-    stopBtn.addEventListener('click', () => {
+    stopBtn.addEventListener('click', async () => {
         const audioBlob = audioRecorder.stopRecording();
         recordBtn.classList.remove('hidden');
         stopBtn.classList.add('hidden');
@@ -88,6 +88,9 @@ function setupEventListeners() {
             const audioPlayback = document.getElementById('audio-playback');
             audioPlayback.src = audioURL;
             audioPlayback.classList.remove('hidden');
+            
+            // Optionally transcribe audio (would need speech-to-text API)
+            // For now, we'll analyze notes when visit is saved
         }
     });
     

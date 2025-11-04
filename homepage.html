@@ -247,15 +247,54 @@
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                     <!-- Apple Health Import -->
                     <div>
-                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Apple Health (iOS)</h4>
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Apple Health / Apple Watch (iOS)</h4>
                         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
-                            Export your Apple Health data as XML from the Health app, then import it here.
+                            Export your Apple Health data as XML from the Health app, then import it here. Includes Apple Watch data.
                         </p>
                         <div style="display: flex; gap: 0.5rem; align-items: center;">
                             <input type="file" id="apple-health-file" accept=".xml" class="form-input" style="flex: 1;">
                             <button onclick="importAppleHealth()" class="btn-primary">Import</button>
                         </div>
                         <div id="apple-health-status" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+                    </div>
+
+                    <!-- Samsung Health Import -->
+                    <div>
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Samsung Health / Samsung Watch</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            Export your Samsung Health data as CSV or JSON, then import it here. Includes Samsung Watch data.
+                        </p>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="samsung-health-file" accept=".csv,.json" class="form-input" style="flex: 1;">
+                            <button onclick="importSamsungHealth()" class="btn-primary">Import</button>
+                        </div>
+                        <div id="samsung-health-status" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+                    </div>
+
+                    <!-- Fitbit Import -->
+                    <div>
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Fitbit</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            Export your Fitbit data as JSON from the Fitbit dashboard, then import it here.
+                        </p>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="fitbit-file" accept=".json" class="form-input" style="flex: 1;">
+                            <button onclick="importFitbit()" class="btn-primary">Import</button>
+                        </div>
+                        <div id="fitbit-status" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+                    </div>
+
+                    <!-- Sleep Apps Import -->
+                    <div>
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Sleep Analysis Apps</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            Import sleep data from Sleep Cycle, AutoSleep, Pillow, or other sleep tracking apps (CSV or JSON).
+                        </p>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="sleep-app-file" accept=".csv,.json" class="form-input" style="flex: 1;">
+                            <button onclick="importSleepApp()" class="btn-primary">Import</button>
+                        </div>
+                        <div id="sleep-app-status" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
                     </div>
 
                     <!-- Google Fit Import -->
