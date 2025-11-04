@@ -2,14 +2,18 @@
 
 ## Quick Setup
 
-To use Firebase features, you need to configure Firebase in your environment.
+**✅ Firebase is already configured!** The app includes default Firebase credentials and will work out of the box.
 
-### Option 1: Environment Variables (Recommended)
+### Option 1: Use Default Configuration (Already Set)
 
-Set these global variables in your runtime environment:
+The app is pre-configured with Firebase credentials. Just open the app and it will work!
+
+### Option 2: Override with Environment Variables (Optional)
+
+If you want to use different Firebase credentials, set these global variables:
 
 ```javascript
-// Firebase Configuration
+// Firebase Configuration (optional - only if you want to override)
 window.__firebase_config = JSON.stringify({
     apiKey: "your-api-key",
     authDomain: "your-project.firebaseapp.com",
@@ -21,6 +25,15 @@ window.__firebase_config = JSON.stringify({
 
 // Optional: Gemini API Key for prescription analysis
 window.__gemini_api_key = "your-gemini-api-key";
+
+// Optional: Weather API Key (OpenWeatherMap)
+window.__weather_api_key = "your-openweathermap-api-key";
+
+// Optional: AQI API Key (AirVisual)
+window.__aqi_api_key = "your-airvisual-api-key";
+
+// Optional: Google Fit Client ID
+window.__google_fit_client_id = "your-google-fit-client-id";
 ```
 
 ### Option 2: Demo Mode

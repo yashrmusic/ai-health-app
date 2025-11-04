@@ -30,7 +30,28 @@ export async function initializeFirebase() {
     }
 
     try {
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // Default Firebase config (can be overridden by environment variable)
+        const defaultConfig = {
+            apiKey: "AIzaSyArBZpVoj1xn8GLK4HaQduJlDYQeS4_qCI",
+            authDomain: "health-966d9.firebaseapp.com",
+            projectId: "health-966d9",
+            storageBucket: "health-966d9.firebasestorage.app",
+            messagingSenderId: "254735369131",
+            appId: "1:254735369131:web:1cf85ba09a15dea95608ee",
+            measurementId: "G-7WM8BMQ973"
+        };
+        
+        // Use environment variable if provided, otherwise use default
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            try {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } catch (e) {
+                firebaseConfig = defaultConfig;
+            }
+        } else {
+            firebaseConfig = defaultConfig;
+        }
         
         if (!firebaseConfig.apiKey) {
             console.warn('Firebase config not available. Using mock mode.');
@@ -45,6 +66,7 @@ export async function initializeFirebase() {
         setLogLevel('error');
         await setPersistence(auth, browserLocalPersistence);
         
+        console.log('Firebase initialized successfully');
         return { app, auth, db, storage };
     } catch (error) {
         console.error('Firebase initialization error:', error);
