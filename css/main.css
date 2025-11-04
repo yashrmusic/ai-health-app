@@ -375,8 +375,48 @@ img, video {
     height: auto;
 }
 
-/* Remove old dark theme styles */
-.glass-card,
-.glass-card-auth {
-    display: none;
+/* File Input Styling */
+.form-file-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: var(--bg-white);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.form-file-input::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--bg-gray-100);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.form-file-input::file-selector-button:hover {
+    background: var(--border-light);
+}
+
+/* Date/Time Input Styling */
+input[type="datetime-local"],
+input[type="date"] {
+    color-scheme: light;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
 }

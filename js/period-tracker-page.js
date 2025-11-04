@@ -72,39 +72,39 @@ async function loadPredictions() {
     
     if (nextPeriod) {
         nextPeriodContainer.innerHTML = `
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Predicted Date</span>
-                    <span class="text-white font-medium">${new Date(nextPeriod.predictedDate).toLocaleDateString()}</span>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Predicted Date</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${new Date(nextPeriod.predictedDate).toLocaleDateString()}</span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Days Until</span>
-                    <span class="text-white font-medium">${nextPeriod.daysUntil} days</span>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Days Until</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${nextPeriod.daysUntil} days</span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Cycle Length</span>
-                    <span class="text-white font-medium">${nextPeriod.cycleLength} days</span>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Cycle Length</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${nextPeriod.cycleLength} days</span>
                 </div>
             </div>
         `;
     } else {
-        nextPeriodContainer.innerHTML = '<p class="text-gray-400">Log your first period to get predictions.</p>';
+        nextPeriodContainer.innerHTML = '<p style="color: var(--text-secondary);">Log your first period to get predictions.</p>';
     }
     
     if (ovulation) {
         ovulationContainer.innerHTML = `
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Predicted Date</span>
-                    <span class="text-white font-medium">${new Date(ovulation.predictedDate).toLocaleDateString()}</span>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Predicted Date</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${new Date(ovulation.predictedDate).toLocaleDateString()}</span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Days Until</span>
-                    <span class="text-white font-medium">${ovulation.daysUntil} days</span>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Days Until</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${ovulation.daysUntil} days</span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Fertile Window</span>
-                    <span class="text-white font-medium text-xs">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary);">Fertile Window</span>
+                    <span style="color: var(--text-primary); font-weight: 600; font-size: 0.75rem;">
                         ${new Date(ovulation.fertileWindow.start).toLocaleDateString()} - 
                         ${new Date(ovulation.fertileWindow.end).toLocaleDateString()}
                     </span>
@@ -112,7 +112,7 @@ async function loadPredictions() {
             </div>
         `;
     } else {
-        ovulationContainer.innerHTML = '<p class="text-gray-400">Log your first period to get predictions.</p>';
+        ovulationContainer.innerHTML = '<p style="color: var(--text-secondary);">Log your first period to get predictions.</p>';
     }
 }
 
