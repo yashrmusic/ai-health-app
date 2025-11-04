@@ -4,182 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Health Vault - Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/main.css" as="style">
     <link rel="stylesheet" href="css/main.css">
-    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js" defer></script>
+    <style>
+        body {
+            background: var(--bg-gray-50);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            .lg\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+        }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .text-2xl { font-size: 1.5rem; font-weight: 700; }
+        .text-white { color: white; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100">
+<body>
     <!-- Navigation -->
-    <nav class="glass-card p-4 mb-6">
-        <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white">My Health Vault</h1>
-            <div class="flex items-center gap-4">
-                <button onclick="navigateTo('visits.html')" class="btn-secondary">Doctor Visits</button>
-                <button onclick="navigateTo('health-metrics.html')" class="btn-secondary">Health Metrics</button>
-                <button onclick="navigateTo('period-tracker.html')" class="btn-secondary">Period Tracker</button>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">My Health Vault</div>
+            <div class="nav-links">
+                <a href="visits.html" class="nav-link">Visits</a>
+                <a href="period-tracker.html" class="nav-link">Period Tracker</a>
                 <button onclick="logout()" class="btn-secondary">Logout</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto max-w-7xl px-4 pb-8">
+    <div class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
         <!-- Health Overview Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- BMI Card -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style="margin-bottom: 2rem;">
             <div class="health-metric-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-white">BMI</h3>
-                    <i data-lucide="activity" class="w-6 h-6 text-blue-400"></i>
-                </div>
-                <div class="text-4xl font-bold text-blue-400 mb-2" id="bmi-value">--</div>
-                <div class="text-sm text-gray-400" id="bmi-status">Calculate your BMI</div>
-                <button onclick="openBMIModal()" class="mt-4 text-sm text-blue-400 hover:text-blue-300">Update BMI</button>
+                <div class="metric-label">BMI</div>
+                <div class="metric-value" id="bmi-value">--</div>
+                <div class="text-secondary" style="font-size: 0.875rem;" id="bmi-status">Calculate your BMI</div>
+                <button onclick="openBMIModal()" class="btn-secondary" style="margin-top: 1rem; width: 100%; font-size: 0.875rem;">Update BMI</button>
             </div>
 
-            <!-- Weight Card -->
             <div class="health-metric-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-white">Weight</h3>
-                    <i data-lucide="weight" class="w-6 h-6 text-green-400"></i>
-                </div>
-                <div class="text-4xl font-bold text-green-400 mb-2" id="weight-value">-- kg</div>
-                <div class="text-sm text-gray-400" id="weight-trend">--</div>
-                <button onclick="openWeightModal()" class="mt-4 text-sm text-green-400 hover:text-green-300">Log Weight</button>
+                <div class="metric-label">Weight</div>
+                <div class="metric-value" id="weight-value" style="color: #34A853;">-- kg</div>
+                <div class="text-secondary" style="font-size: 0.875rem;" id="weight-trend">--</div>
+                <button onclick="openWeightModal()" class="btn-secondary" style="margin-top: 1rem; width: 100%; font-size: 0.875rem;">Log Weight</button>
             </div>
 
-            <!-- Upcoming Visits -->
             <div class="health-metric-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-white">Upcoming</h3>
-                    <i data-lucide="calendar" class="w-6 h-6 text-yellow-400"></i>
-                </div>
-                <div class="text-4xl font-bold text-yellow-400 mb-2" id="upcoming-count">0</div>
-                <div class="text-sm text-gray-400">Appointments</div>
-                <button onclick="navigateTo('visits.html')" class="mt-4 text-sm text-yellow-400 hover:text-yellow-300">View All</button>
+                <div class="metric-label">Upcoming</div>
+                <div class="metric-value" id="upcoming-count" style="color: #FBBC05;">0</div>
+                <div class="text-secondary" style="font-size: 0.875rem;">Appointments</div>
+                <button onclick="navigateTo('visits.html')" class="btn-secondary" style="margin-top: 1rem; width: 100%; font-size: 0.875rem;">View All</button>
             </div>
 
-            <!-- Total Prescriptions -->
             <div class="health-metric-card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-white">Prescriptions</h3>
-                    <i data-lucide="file-text" class="w-6 h-6 text-purple-400"></i>
-                </div>
-                <div class="text-4xl font-bold text-purple-400 mb-2" id="prescription-count">0</div>
-                <div class="text-sm text-gray-400">Total saved</div>
-                <button onclick="navigateTo('visits.html')" class="mt-4 text-sm text-purple-400 hover:text-purple-300">View All</button>
-            </div>
-        </div>
-
-        <!-- Doctor Categories -->
-        <div class="glass-card p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-white mb-4">Doctors by Category</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="doctor-categories">
-                <!-- Categories will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Recent Visits -->
-        <div class="glass-card p-6 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-white">Recent Visits</h2>
-                <button onclick="navigateTo('visits.html')" class="btn-primary">View All</button>
-            </div>
-            <div id="recent-visits" class="space-y-4">
-                <!-- Recent visits will be loaded here -->
+                <div class="metric-label">Prescriptions</div>
+                <div class="metric-value" id="prescription-count" style="color: #4285F4;">0</div>
+                <div class="text-secondary" style="font-size: 0.875rem;">Total saved</div>
+                <button onclick="navigateTo('visits.html')" class="btn-secondary" style="margin-top: 1rem; width: 100%; font-size: 0.875rem;">View All</button>
             </div>
         </div>
 
         <!-- Current Body Health Metrics -->
-        <div class="glass-card p-6 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-white">Current Body Health</h2>
-                <button onclick="syncHealthData()" class="btn-secondary">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
-                    Sync Health Data
-                </button>
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <h2 class="card-title">Current Body Health</h2>
+                    <button onclick="syncHealthData()" class="btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                        Sync Health Data
+                    </button>
+                </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="current-health-metrics">
-                <!-- Health metrics from Apple Health/Google Fit will be loaded here -->
+            <div class="card-body">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5" id="current-health-metrics">
+                    <!-- Health metrics will be loaded here -->
+                </div>
             </div>
         </div>
 
         <!-- Health Recommendations -->
-        <div class="glass-card p-6 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-white">Health Recommendations</h2>
-                <button onclick="navigateTo('recommendations.html')" class="btn-secondary">View All</button>
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <h2 class="card-title">Health Recommendations</h2>
+                    <button onclick="navigateTo('recommendations.html')" class="btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View All</button>
+                </div>
             </div>
-            <div id="health-recommendations" class="space-y-4">
-                <!-- Recommendations based on lab reports will be loaded here -->
+            <div class="card-body" id="health-recommendations">
+                <!-- Recommendations will be loaded here -->
             </div>
         </div>
 
         <!-- Medication Reminders -->
-        <div class="glass-card p-6 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-white">Medication Reminders</h2>
-                <button onclick="navigateTo('medications.html')" class="btn-secondary">Manage</button>
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <h2 class="card-title">Medication Reminders</h2>
+                    <button onclick="navigateTo('medications.html')" class="btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Manage</button>
+                </div>
             </div>
-            <div id="medication-reminders" class="space-y-3">
-                <!-- Active medication reminders will be loaded here -->
+            <div class="card-body" id="medication-reminders">
+                <!-- Reminders will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Doctor Categories -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title">Doctors by Category</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6" id="doctor-categories">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Visits -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <div class="flex items-center justify-between">
+                    <h2 class="card-title">Recent Visits</h2>
+                    <button onclick="navigateTo('visits.html')" class="btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View All</button>
+                </div>
+            </div>
+            <div class="card-body" id="recent-visits">
+                <!-- Recent visits will be loaded here -->
             </div>
         </div>
 
         <!-- Health Category Progress -->
-        <div class="glass-card p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-white mb-4">Health Category Progress</h2>
-            <div id="category-progress" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Progress for each health category will be loaded here -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title">Health Category Progress</h2>
             </div>
-        </div>
-
-        <!-- Health Trends -->
-        <div class="glass-card p-6">
-            <h2 class="text-2xl font-semibold text-white mb-4">Health Trends</h2>
-            <div id="health-trends" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Trends will be loaded here -->
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" id="category-progress">
+                    <!-- Progress will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
 
     <!-- BMI Modal -->
-    <div id="bmi-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="glass-card p-6 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-semibold text-white mb-4">Calculate BMI</h3>
-            <form id="bmi-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Height (cm)</label>
-                    <input type="number" id="height-input" class="form-input w-full px-4 py-3" placeholder="170" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Weight (kg)</label>
-                    <input type="number" id="weight-input" class="form-input w-full px-4 py-3" placeholder="70" required>
-                </div>
-                <div class="flex gap-4">
-                    <button type="submit" class="btn-primary flex-1">Calculate & Save</button>
-                    <button type="button" onclick="closeBMIModal()" class="btn-secondary">Cancel</button>
-                </div>
-            </form>
+    <div id="bmi-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="card" style="max-width: 420px; width: 90%; margin: 1rem;">
+            <div class="card-header">
+                <h3 class="card-title">Calculate BMI</h3>
+            </div>
+            <div class="card-body">
+                <form id="bmi-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" id="height-input" class="form-input" placeholder="170" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" id="weight-input" class="form-input" placeholder="70" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Calculate & Save</button>
+                        <button type="button" onclick="closeBMIModal()" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Weight Modal -->
-    <div id="weight-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="glass-card p-6 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-semibold text-white mb-4">Log Weight</h3>
-            <form id="weight-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Weight (kg)</label>
-                    <input type="number" step="0.1" id="new-weight-input" class="form-input w-full px-4 py-3" placeholder="70.5" required>
-                </div>
-                <div class="flex gap-4">
-                    <button type="submit" class="btn-primary flex-1">Save</button>
-                    <button type="button" onclick="closeWeightModal()" class="btn-secondary">Cancel</button>
-                </div>
-            </form>
+    <div id="weight-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="card" style="max-width: 420px; width: 90%; margin: 1rem;">
+            <div class="card-header">
+                <h3 class="card-title">Log Weight</h3>
+            </div>
+            <div class="card-body">
+                <form id="weight-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" id="new-weight-input" class="form-input" placeholder="70.5" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Save</button>
+                        <button type="button" onclick="closeWeightModal()" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -191,22 +232,18 @@
         
         function openBMIModal() {
             document.getElementById('bmi-modal').classList.remove('hidden');
-            document.getElementById('bmi-modal').classList.add('flex');
         }
         
         function closeBMIModal() {
             document.getElementById('bmi-modal').classList.add('hidden');
-            document.getElementById('bmi-modal').classList.remove('flex');
         }
         
         function openWeightModal() {
             document.getElementById('weight-modal').classList.remove('hidden');
-            document.getElementById('weight-modal').classList.add('flex');
         }
         
         function closeWeightModal() {
             document.getElementById('weight-modal').classList.add('hidden');
-            document.getElementById('weight-modal').classList.remove('flex');
         }
         
         async function logout() {
@@ -216,4 +253,3 @@
     </script>
 </body>
 </html>
-

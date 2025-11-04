@@ -7,7 +7,11 @@ import {
     onAuthStateChanged,
     signOut as firebaseSignOut,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { 
     getFirestore,
@@ -74,6 +78,38 @@ export async function signOut() {
         await firebaseSignOut(auth);
     }
     localStorage.removeItem('user');
+}
+
+export async function signInWithGoogle(auth) {
+    if (!auth) {
+        throw new Error('Firebase not initialized. Please check your configuration.');
+    }
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+    
+    try {
+        // Try popup first, fallback to redirect
+        return await signInWithPopup(auth, provider);
+    } catch (error) {
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+            // Fallback to redirect
+            await signInWithRedirect(auth, provider);
+            return null; // Will be handled by redirect
+        }
+        throw error;
+    }
+}
+
+export async function getGoogleRedirectResult(auth) {
+    if (!auth) return null;
+    try {
+        return await getRedirectResult(auth);
+    } catch (error) {
+        console.error('Google redirect error:', error);
+        return null;
+    }
 }
 
 export { auth, db, storage };

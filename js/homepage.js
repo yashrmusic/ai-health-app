@@ -1,12 +1,8 @@
-// Homepage Logic
+// Homepage Logic - Optimized with lazy loading
 import { getCurrentUser } from './auth.js';
 import { initializeFirebase } from './firebase-config.js';
 import { calculateBMI, saveHealthMetric, getHealthMetrics } from './health-metrics.js';
 import { getDoctorCategories, getRecentVisits } from './visits-manager.js';
-import { HealthDataSync } from './health-sync.js';
-import { HealthRecommendations } from './health-recommendations.js';
-import { MedicationReminders } from './medication-reminders.js';
-import { DynamicCategories } from './dynamic-categories.js';
 
 let db = null;
 let userId = null;
@@ -36,18 +32,39 @@ async function init() {
 }
 
 async function loadDashboard() {
-    healthSync = new HealthDataSync();
-    healthRecs = new HealthRecommendations();
-    medicationReminders = new MedicationReminders();
-    dynamicCategories = new DynamicCategories();
+    // Load critical data first
+    await Promise.all([
+        loadHealthMetrics(),
+        loadDoctorCategories(),
+        loadRecentVisits()
+    ]);
     
-    await loadHealthMetrics();
-    await loadDoctorCategories();
-    await loadRecentVisits();
-    await loadCurrentBodyHealth();
-    await loadHealthRecommendations();
-    await loadMedicationReminders();
-    await loadCategoryProgress();
+    // Lazy load heavy modules
+    const [
+        { HealthDataSync: HealthDataSyncClass },
+        { HealthRecommendations: HealthRecommendationsClass },
+        { MedicationReminders: MedicationRemindersClass },
+        { DynamicCategories: DynamicCategoriesClass }
+    ] = await Promise.all([
+        import('./health-sync.js'),
+        import('./health-recommendations.js'),
+        import('./medication-reminders.js'),
+        import('./dynamic-categories.js')
+    ]);
+    
+    healthSync = new HealthDataSyncClass();
+    healthRecs = new HealthRecommendationsClass();
+    medicationReminders = new MedicationRemindersClass();
+    dynamicCategories = new DynamicCategoriesClass();
+    
+    // Load secondary data
+    await Promise.all([
+        loadCurrentBodyHealth(),
+        loadHealthRecommendations(),
+        loadMedicationReminders(),
+        loadCategoryProgress()
+    ]);
+    
     await loadHealthTrends();
 }
 
@@ -129,6 +146,7 @@ async function loadRecentVisits() {
 }
 
 async function loadCurrentBodyHealth() {
+    if (!healthSync) return;
     const metrics = await healthSync.getCurrentHealthMetrics(userId);
     const container = document.getElementById('current-health-metrics');
     
@@ -155,6 +173,7 @@ async function loadCurrentBodyHealth() {
 }
 
 async function loadHealthRecommendations() {
+    if (!healthRecs) return;
     const recommendations = await healthRecs.getActiveRecommendations(userId);
     const container = document.getElementById('health-recommendations');
     
@@ -184,6 +203,7 @@ async function loadHealthRecommendations() {
 }
 
 async function loadMedicationReminders() {
+    if (!medicationReminders) return;
     const reminders = await medicationReminders.getActiveReminders(userId);
     const container = document.getElementById('medication-reminders');
     
@@ -206,6 +226,7 @@ async function loadMedicationReminders() {
 }
 
 async function loadCategoryProgress() {
+    if (!dynamicCategories) return;
     const categories = await dynamicCategories.getUserCategories(userId);
     const container = document.getElementById('category-progress');
     
@@ -263,9 +284,14 @@ async function loadHealthTrends() {
 }
 
 async function syncHealthData() {
+    if (!healthSync) {
+        const { HealthDataSync: HealthDataSyncClass } = await import('./health-sync.js');
+        healthSync = new HealthDataSyncClass();
+    }
+    
     const button = event.target;
     button.disabled = true;
-    button.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-2 animate-spin"></i>Syncing...';
+    button.innerHTML = '<span class="loading"></span> Syncing...';
     
     try {
         const today = new Date();
@@ -286,11 +312,15 @@ async function syncHealthData() {
         alert('Error syncing health data: ' + error.message);
     } finally {
         button.disabled = false;
-        button.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>Sync Health Data';
+        button.innerHTML = 'Sync Health Data';
     }
 }
 
 async function markMedicationTaken(reminderId) {
+    if (!medicationReminders) {
+        const { MedicationReminders: MedicationRemindersClass } = await import('./medication-reminders.js');
+        medicationReminders = new MedicationRemindersClass();
+    }
     await medicationReminders.markAsTaken(userId, reminderId);
     await loadMedicationReminders();
 }
