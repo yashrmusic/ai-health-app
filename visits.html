@@ -4,136 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Visits - My Health Vault</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/main.css" as="style">
     <link rel="stylesheet" href="css/main.css">
-    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.min.js" defer></script>
+    <style>
+        body { background: var(--bg-gray-50); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .lg\:col-span-1 { grid-column: span 1; }
+        .lg\:col-span-2 { grid-column: span 2; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-8 { gap: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .text-2xl { font-size: 1.5rem; font-weight: 700; }
+        .sticky { position: sticky; }
+        .top-4 { top: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .hidden { display: none; }
+        .w-full { width: 100%; }
+        .flex-1 { flex: 1; }
+        .inline-block { display: inline-block; }
+        .ml-2 { margin-left: 0.5rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .text-sm { font-size: 0.875rem; }
+        .flex-wrap { flex-wrap: wrap; }
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100">
+<body>
     <!-- Navigation -->
-    <nav class="glass-card p-4 mb-6">
-        <div class="flex justify-between items-center">
+    <nav class="navbar">
+        <div class="nav-container">
             <div class="flex items-center gap-4">
                 <button onclick="navigateTo('homepage.html')" class="btn-secondary">← Home</button>
-                <h1 class="text-2xl font-bold text-white">Doctor Visits</h1>
+                <div class="nav-logo">Doctor Visits</div>
             </div>
             <button onclick="navigateTo('homepage.html')" class="btn-secondary">Dashboard</button>
         </div>
     </nav>
 
-    <div class="container mx-auto max-w-7xl px-4 pb-8">
+    <div class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left: Add Visit Form -->
             <div class="lg:col-span-1">
-                <div class="glass-card p-6 sticky top-4">
-                    <h2 class="text-2xl font-semibold text-white mb-6">Log New Visit</h2>
-                    <form id="visit-form" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Doctor Name *</label>
-                            <input type="text" id="doctor-name" required class="form-input w-full px-4 py-3">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Specialty/Category *</label>
-                            <select id="specialty" required class="form-input w-full px-4 py-3">
-                                <option value="">Select Category</option>
-                                <option value="Psychiatry">Psychiatry</option>
-                                <option value="Cardiology">Cardiology</option>
-                                <option value="Orthopedics">Orthopedics</option>
-                                <option value="Dermatology">Dermatology</option>
-                                <option value="General">General</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Visit Date *</label>
-                            <input type="datetime-local" id="visit-date" required class="form-input w-full px-4 py-3">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Clinic Address</label>
-                            <input type="text" id="address" class="form-input w-full px-4 py-3" placeholder="Optional">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Payment Amount (INR)</label>
-                            <input type="number" id="payment" class="form-input w-full px-4 py-3" placeholder="Optional">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Consultation Notes</label>
-                            <textarea id="notes" rows="4" class="form-input w-full px-4 py-3" placeholder="Symptoms, discussion, next steps..."></textarea>
-                        </div>
-
-                        <!-- Improvement Status -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Health Improvement Status</label>
-                            <select id="improvement-status" class="form-input w-full px-4 py-3">
-                                <option value="">Select Status</option>
-                                <option value="improved">✅ Improved</option>
-                                <option value="same">➡️ No Change</option>
-                                <option value="worse">❌ Got Worse</option>
-                            </select>
-                        </div>
-
-                        <!-- Audio Recording -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Record Meeting</label>
-                            <div class="recorder-controls">
-                                <button type="button" id="record-btn" class="btn-secondary flex-1">
-                                    <i data-lucide="mic" class="w-4 h-4 inline mr-2"></i>
-                                    Start Recording
-                                </button>
-                                <button type="button" id="stop-btn" class="btn-secondary hidden">
-                                    <i data-lucide="square" class="w-4 h-4 inline mr-2"></i>
-                                    Stop
-                                </button>
+                <div class="card sticky top-4">
+                    <div class="card-header">
+                        <h2 class="card-title">Log New Visit</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="visit-form" class="space-y-4">
+                            <div>
+                                <label class="form-label">Doctor Name *</label>
+                                <input type="text" id="doctor-name" required class="form-input w-full">
                             </div>
-                            <div id="recording-status" class="mt-2 text-sm text-gray-400 hidden">
-                                <span class="recording-indicator"></span>
-                                <span id="recording-time">Recording...</span>
+
+                            <div>
+                                <label class="form-label">Specialty/Category *</label>
+                                <select id="specialty" required class="form-input w-full">
+                                    <option value="">Select Category</option>
+                                    <option value="Psychiatry">Psychiatry</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Orthopedics">Orthopedics</option>
+                                    <option value="Dermatology">Dermatology</option>
+                                    <option value="General">General</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
-                            <audio id="audio-playback" controls class="hidden w-full mt-2"></audio>
-                        </div>
 
-                        <!-- Prescription Upload -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Upload Prescription (AI Analysis)</label>
-                            <input type="file" id="prescription-file" accept="image/*" class="form-file-input w-full">
-                            <div id="prescription-analysis" class="mt-2">
-                                <div id="prescription-spinner" class="spinner w-5 h-5 hidden"></div>
-                                <div id="prescription-status" class="text-sm text-gray-400"></div>
+                            <div>
+                                <label class="form-label">Visit Date *</label>
+                                <input type="datetime-local" id="visit-date" required class="form-input w-full">
                             </div>
-                        </div>
 
-                        <!-- Test Results -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Upload Test Results</label>
-                            <input type="file" id="test-files" multiple accept="image/*,.pdf" class="form-file-input w-full">
-                        </div>
+                            <div>
+                                <label class="form-label">Clinic Address</label>
+                                <input type="text" id="address" class="form-input w-full" placeholder="Optional">
+                            </div>
 
-                        <button type="submit" id="save-btn" class="btn-primary w-full">
-                            <span id="save-btn-text">Save Visit</span>
-                            <div id="save-spinner" class="spinner w-5 h-5 hidden inline-block ml-2"></div>
-                        </button>
-                    </form>
+                            <div>
+                                <label class="form-label">Payment Amount (INR)</label>
+                                <input type="number" id="payment" class="form-input w-full" placeholder="Optional">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Consultation Notes</label>
+                                <textarea id="notes" rows="4" class="form-input w-full" placeholder="Symptoms, discussion, next steps..."></textarea>
+                            </div>
+
+                            <!-- Improvement Status -->
+                            <div>
+                                <label class="form-label">Health Improvement Status</label>
+                                <select id="improvement-status" class="form-input w-full">
+                                    <option value="">Select Status</option>
+                                    <option value="improved">✅ Improved</option>
+                                    <option value="same">➡️ No Change</option>
+                                    <option value="worse">❌ Got Worse</option>
+                                </select>
+                            </div>
+
+                            <!-- Audio Recording -->
+                            <div>
+                                <label class="form-label">Record Meeting</label>
+                                <div class="recorder-controls">
+                                    <button type="button" id="record-btn" class="btn-secondary flex-1">
+                                        <i data-lucide="mic" class="w-4 h-4 inline mr-2"></i>
+                                        Start Recording
+                                    </button>
+                                    <button type="button" id="stop-btn" class="btn-secondary hidden">
+                                        <i data-lucide="square" class="w-4 h-4 inline mr-2"></i>
+                                        Stop
+                                    </button>
+                                </div>
+                                <div id="recording-status" class="mt-2 text-sm text-tertiary hidden">
+                                    <span class="recording-indicator"></span>
+                                    <span id="recording-time">Recording...</span>
+                                </div>
+                                <audio id="audio-playback" controls class="hidden w-full mt-2"></audio>
+                            </div>
+
+                            <!-- Prescription Upload -->
+                            <div>
+                                <label class="form-label">Upload Prescription (AI Analysis)</label>
+                                <input type="file" id="prescription-file" accept="image/*" class="form-input w-full">
+                                <div id="prescription-analysis" class="mt-2">
+                                    <div id="prescription-spinner" class="loading hidden"></div>
+                                    <div id="prescription-status" class="text-sm text-secondary"></div>
+                                </div>
+                            </div>
+
+                            <!-- Test Results -->
+                            <div>
+                                <label class="form-label">Upload Test Results</label>
+                                <input type="file" id="test-files" multiple accept="image/*,.pdf" class="form-input w-full">
+                            </div>
+
+                            <button type="submit" id="save-btn" class="btn-primary w-full">
+                                <span id="save-btn-text">Save Visit</span>
+                                <div id="save-spinner" class="loading hidden inline-block ml-2"></div>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             <!-- Right: Visits List -->
             <div class="lg:col-span-2">
                 <!-- Filter -->
-                <div class="glass-card p-4 mb-6">
-                    <div class="flex flex-wrap gap-2 items-center">
-                        <span class="text-sm font-medium text-gray-300">Filter:</span>
-                        <button onclick="filterByCategory('')" class="category-badge active">All</button>
-                        <button onclick="filterByCategory('Psychiatry')" class="category-badge psychiatry">Psychiatry</button>
-                        <button onclick="filterByCategory('Cardiology')" class="category-badge cardiology">Cardiology</button>
-                        <button onclick="filterByCategory('Orthopedics')" class="category-badge orthopedics">Orthopedics</button>
-                        <button onclick="filterByCategory('Dermatology')" class="category-badge dermatology">Dermatology</button>
+                <div class="card mb-6">
+                    <div class="card-body">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-sm font-medium text-secondary">Filter:</span>
+                            <button onclick="filterByCategory('')" class="category-badge">All</button>
+                            <button onclick="filterByCategory('Psychiatry')" class="category-badge psychiatry">Psychiatry</button>
+                            <button onclick="filterByCategory('Cardiology')" class="category-badge cardiology">Cardiology</button>
+                            <button onclick="filterByCategory('Orthopedics')" class="category-badge orthopedics">Orthopedics</button>
+                            <button onclick="filterByCategory('Dermatology')" class="category-badge dermatology">Dermatology</button>
+                        </div>
                     </div>
                 </div>
 
@@ -160,4 +200,3 @@
     </script>
 </body>
 </html>
-

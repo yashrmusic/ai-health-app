@@ -274,15 +274,15 @@ function renderVisitCard(visit) {
     let medicinesHtml = '';
     if (visit.aiSummary && visit.aiSummary.medicines) {
         medicinesHtml = visit.aiSummary.medicines.map(med => `
-            <li class="py-2 flex items-center justify-between">
-                <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-100">${med.name}</p>
-                    <p class="text-xs text-gray-400">${med.purpose}</p>
-                    <p class="text-xs text-gray-500">${med.dosage}</p>
+            <li style="padding: 0.5rem 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-light);">
+                <div style="flex: 1;">
+                    <p style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">${med.name}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary);">${med.purpose}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-tertiary);">${med.dosage}</p>
                 </div>
                 <a href="https://www.1mg.com/search/all?name=${encodeURIComponent(med.name)}" 
                    target="_blank" 
-                   class="text-xs text-green-400 hover:text-green-300">
+                   style="font-size: 0.75rem; color: var(--primary-red); text-decoration: none;">
                     1mg
                 </a>
             </li>
@@ -293,76 +293,82 @@ function renderVisitCard(visit) {
         create1mgBatchLink(visit.aiSummary.medicines) : null;
     
     return `
-        <div class="glass-card p-6">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="text-xl font-semibold text-white">${visit.doctorName}</h3>
-                    <span class="category-badge ${getCategoryClass(visit.specialty)}">${visit.specialty}</span>
-                    <p class="text-sm text-gray-400 mt-2">${date}</p>
-                    ${improvementBadge ? `<div class="mt-2">${improvementBadge}</div>` : ''}
-                </div>
-                <div class="flex gap-2">
-                    ${batchCartLink ? `
-                        <button onclick="addTo1mgCart('${visit.id}')" 
-                                class="btn-secondary text-xs"
-                                title="Add all medicines to 1mg">
-                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+        <div class="card">
+            <div class="card-header">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">${visit.doctorName}</h3>
+                        <span class="category-badge ${getCategoryClass(visit.specialty)}">${visit.specialty}</span>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">${date}</p>
+                        ${improvementBadge ? `<div style="margin-top: 0.5rem;">${improvementBadge}</div>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        ${batchCartLink ? `
+                            <button onclick="addTo1mgCart('${visit.id}')" 
+                                    class="btn-secondary"
+                                    style="font-size: 0.75rem; padding: 0.5rem;"
+                                    title="Add all medicines to 1mg">
+                                <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        ` : ''}
+                        <button onclick="shareVisitWithFamily('${visit.id}')" 
+                                class="btn-secondary"
+                                style="font-size: 0.75rem; padding: 0.5rem;"
+                                title="Share with family">
+                            <i data-lucide="share-2" style="width: 16px; height: 16px;"></i>
                         </button>
-                    ` : ''}
-                    <button onclick="shareVisitWithFamily('${visit.id}')" 
-                            class="btn-secondary text-xs"
-                            title="Share with family">
-                        <i data-lucide="share-2" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="deleteVisitCard('${visit.id}')" 
-                            class="btn-secondary text-xs text-red-400"
-                            title="Delete">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
+                        <button onclick="deleteVisitCard('${visit.id}')" 
+                                class="btn-secondary"
+                                style="font-size: 0.75rem; padding: 0.5rem; color: #DC2626;"
+                                title="Delete">
+                            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            
-            ${visit.aiSummary ? `
-                <div class="mb-4 p-4 bg-gray-800/50 rounded-lg">
-                    <h4 class="font-medium text-gray-200 mb-2">AI Prescription Summary</h4>
-                    <p class="text-sm text-gray-400 mb-3">${visit.aiSummary.summary || ''}</p>
-                    <ul class="divide-y divide-gray-700">
-                        ${medicinesHtml}
-                    </ul>
-                </div>
-            ` : ''}
-            
-            ${visit.notes ? `
-                <div class="mb-4">
-                    <h4 class="font-medium text-gray-200 mb-2">Notes</h4>
-                    <p class="text-sm text-gray-300 whitespace-pre-wrap">${visit.notes}</p>
-                </div>
-            ` : ''}
-            
-            ${visit.address ? `
-                <div class="mb-4">
-                    <h4 class="font-medium text-gray-200 mb-2">Location</h4>
-                    <a href="https://maps.google.com/?q=${encodeURIComponent(visit.address)}" 
-                       target="_blank" 
-                       class="text-sm text-blue-400 hover:text-blue-300">
-                        ${visit.address}
-                    </a>
-                </div>
-            ` : ''}
-            
-            ${visit.paymentAmount ? `
-                <div class="mb-4">
-                    <h4 class="font-medium text-gray-200 mb-2">Payment</h4>
-                    <p class="text-sm text-gray-300">₹${visit.paymentAmount}</p>
-                </div>
-            ` : ''}
-            
-            ${visit.audioRecording ? `
-                <div class="mb-4">
-                    <h4 class="font-medium text-gray-200 mb-2">Meeting Recording</h4>
-                    <audio controls src="${visit.audioRecording}" class="w-full"></audio>
-                </div>
-            ` : ''}
+            <div class="card-body">
+                ${visit.aiSummary ? `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">AI Prescription Summary</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem;">${visit.aiSummary.summary || ''}</p>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${medicinesHtml}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                ${visit.notes ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Notes</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); white-space: pre-wrap;">${visit.notes}</p>
+                    </div>
+                ` : ''}
+                
+                ${visit.address ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Location</h4>
+                        <a href="https://maps.google.com/?q=${encodeURIComponent(visit.address)}" 
+                           target="_blank" 
+                           style="font-size: 0.875rem; color: var(--primary-red); text-decoration: none;">
+                            ${visit.address}
+                        </a>
+                    </div>
+                ` : ''}
+                
+                ${visit.paymentAmount ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Payment</h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">₹${visit.paymentAmount}</p>
+                    </div>
+                ` : ''}
+                
+                ${visit.audioRecording ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Meeting Recording</h4>
+                        <audio controls src="${visit.audioRecording}" style="width: 100%;"></audio>
+                    </div>
+                ` : ''}
+            </div>
         </div>
     `;
 }

@@ -41,18 +41,24 @@ async function loadCurrentStatus() {
     };
     
     container.innerHTML = `
-        <div class="glass-card p-4 text-center">
-            <div class="text-4xl mb-2">${phaseEmoji[status.currentPhase] || '🌙'}</div>
-            <div class="text-lg font-semibold text-white capitalize">${status.currentPhase}</div>
-            <div class="text-sm text-gray-400 mt-1">Current Phase</div>
+        <div class="card text-center">
+            <div class="card-body">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">${phaseEmoji[status.currentPhase] || '🌙'}</div>
+                <div style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); text-transform: capitalize;">${status.currentPhase}</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Current Phase</div>
+            </div>
         </div>
-        <div class="glass-card p-4 text-center">
-            <div class="text-3xl font-bold text-white mb-2">${status.daysUntilPeriod || '--'}</div>
-            <div class="text-sm text-gray-400">Days until period</div>
+        <div class="card text-center">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.5rem;">${status.daysUntilPeriod || '--'}</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Days until period</div>
+            </div>
         </div>
-        <div class="glass-card p-4 text-center">
-            <div class="text-3xl font-bold text-white mb-2">${status.daysUntilOvulation || '--'}</div>
-            <div class="text-sm text-gray-400">Days until ovulation</div>
+        <div class="card text-center">
+            <div class="card-body">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.5rem;">${status.daysUntilOvulation || '--'}</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Days until ovulation</div>
+            </div>
         </div>
     `;
 }
@@ -116,23 +122,29 @@ async function loadCycleStats() {
     
     if (stats) {
         container.innerHTML = `
-            <div class="glass-card p-4 text-center">
-                <div class="text-2xl font-bold text-blue-400 mb-1">${stats.averageCycleLength}</div>
-                <div class="text-sm text-gray-400">Avg Cycle Length (days)</div>
-            </div>
-            <div class="glass-card p-4 text-center">
-                <div class="text-2xl font-bold text-purple-400 mb-1">${stats.averagePeriodDuration}</div>
-                <div class="text-sm text-gray-400">Avg Period Duration (days)</div>
-            </div>
-            <div class="glass-card p-4 text-center">
-                <div class="text-2xl font-bold ${stats.regularity === 'regular' ? 'text-green-400' : 'text-yellow-400'} mb-1">
-                    ${stats.regularity === 'regular' ? '✓' : '~'}
+            <div class="card text-center">
+                <div class="card-body">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.25rem;">${stats.averageCycleLength}</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Avg Cycle Length (days)</div>
                 </div>
-                <div class="text-sm text-gray-400 capitalize">${stats.regularity}</div>
+            </div>
+            <div class="card text-center">
+                <div class="card-body">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.25rem;">${stats.averagePeriodDuration}</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">Avg Period Duration (days)</div>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-body">
+                    <div style="font-size: 2rem; font-weight: 700; color: ${stats.regularity === 'regular' ? '#10b981' : '#f59e0b'}; margin-bottom: 0.25rem;">
+                        ${stats.regularity === 'regular' ? '✓' : '~'}
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); text-transform: capitalize;">${stats.regularity}</div>
+                </div>
             </div>
         `;
     } else {
-        container.innerHTML = '<p class="text-gray-400 col-span-3 text-center py-4">Log at least 2 periods to see statistics.</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1 / -1; text-align: center; padding: 2rem 0;">Log at least 2 periods to see statistics.</p>';
     }
 }
 
@@ -141,7 +153,7 @@ async function loadPeriodHistory() {
     const container = document.getElementById('period-history');
     
     if (history.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 text-center py-4">No period history yet. Log your first period!</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">No period history yet. Log your first period!</p>';
         return;
     }
     
@@ -151,17 +163,19 @@ async function loadPeriodHistory() {
         const duration = period.duration || '--';
         
         return `
-            <div class="glass-card p-4 flex justify-between items-center">
-                <div>
-                    <div class="font-semibold text-white">Cycle ${period.cycleNumber}</div>
-                    <div class="text-sm text-gray-400">${startDate} - ${endDate}</div>
-                    <div class="text-xs text-gray-500 mt-1">Duration: ${duration} days</div>
+            <div class="card">
+                <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">Cycle ${period.cycleNumber}</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">${startDate} - ${endDate}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.25rem;">Duration: ${duration} days</div>
+                    </div>
+                    ${!period.endDate ? `
+                        <button onclick="endPeriod('${period.id}')" class="btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">
+                            End Period
+                        </button>
+                    ` : ''}
                 </div>
-                ${!period.endDate ? `
-                    <button onclick="endPeriod('${period.id}')" class="btn-secondary text-xs">
-                        End Period
-                    </button>
-                ` : ''}
             </div>
         `;
     }).join('');
@@ -196,14 +210,17 @@ function setupEventListeners() {
 }
 
 function logPeriodStart() {
+    const modal = document.getElementById('period-start-modal');
     document.getElementById('period-start-date').valueAsDate = new Date();
-    document.getElementById('period-start-modal').classList.remove('hidden');
-    document.getElementById('period-start-modal').classList.add('flex');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
 }
 
 function closePeriodStartModal() {
-    document.getElementById('period-start-modal').classList.add('hidden');
-    document.getElementById('period-start-modal').classList.remove('flex');
+    const modal = document.getElementById('period-start-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.getElementById('period-start-form').reset();
 }
 
 function logPeriodEnd() {
@@ -223,14 +240,17 @@ async function endPeriod(periodId) {
 }
 
 function logSymptoms() {
+    const modal = document.getElementById('symptoms-modal');
     document.getElementById('symptom-date').valueAsDate = new Date();
-    document.getElementById('symptoms-modal').classList.remove('hidden');
-    document.getElementById('symptoms-modal').classList.add('flex');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
 }
 
 function closeSymptomsModal() {
-    document.getElementById('symptoms-modal').classList.add('hidden');
-    document.getElementById('symptoms-modal').classList.remove('flex');
+    const modal = document.getElementById('symptoms-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.getElementById('symptoms-form').reset();
 }
 
 // Make functions globally available
