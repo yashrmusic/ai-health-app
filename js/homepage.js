@@ -84,7 +84,9 @@ async function loadDashboard() {
         loadMedicationReminders(),
         loadCategoryProgress(),
         loadAICompanionInsights(),
-        loadDietRecommendations()
+        loadDietRecommendations(),
+        loadMoodAndWeather(),
+        loadLifestyleSpending()
     ]);
     
     await loadHealthTrends();
@@ -208,6 +210,392 @@ async function loadDietRecommendations() {
     
     html += '</div>';
     container.innerHTML = html;
+}
+
+async function loadMoodAndWeather() {
+    const { MoodTracker } = await import('./mood-tracker.js');
+    const moodTracker = new MoodTracker();
+    
+    const container = document.getElementById('mood-weather-section');
+    if (!container) return;
+    
+    // Get today's mood
+    const moods = await moodTracker.getMoodHistory(userId, 1);
+    const todayMood = moods.find(m => {
+        const moodDate = new Date(m.date);
+        const today = new Date();
+        return moodDate.toDateString() === today.toDateString();
+    });
+    
+    // Get weather and AQI
+    const weather = await moodTracker.getCurrentWeather();
+    const aqi = await moodTracker.getCurrentAQI();
+    
+    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
+    
+    // Today's mood
+    html += `
+        <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm); text-align: center;">
+            <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Today's Mood</h4>
+            ${todayMood ? `
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                    ${moodTracker.moodOptions.find(m => m.value === todayMood.mood)?.label.split(' ')[0] || '😐'}
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                    ${moodTracker.moodOptions.find(m => m.value === todayMood.mood)?.label.split(' ')[1] || 'Neutral'}
+                </p>
+            ` : `
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">Not logged yet</p>
+                <button onclick="openMoodModal()" class="btn-secondary" style="margin-top: 0.5rem; font-size: 0.75rem; padding: 0.5rem;">Log Mood</button>
+            `}
+        </div>
+    `;
+    
+    // Weather
+    html += `
+        <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm); text-align: center;">
+            <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Weather</h4>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">${weather.condition === 'Clear' ? '☀️' : weather.condition === 'Clouds' ? '☁️' : weather.condition === 'Rain' ? '🌧️' : '🌤️'}</div>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+                ${weather.temperature}°C
+            </p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                ${weather.condition}
+            </p>
+        </div>
+    `;
+    
+    // AQI
+    const aqiColors = {
+        'Good': '#10b981',
+        'Moderate': '#f59e0b',
+        'Unhealthy for Sensitive Groups': '#ef4444',
+        'Unhealthy': '#dc2626',
+        'Very Unhealthy': '#991b1b',
+        'Hazardous': '#7f1d1d'
+    };
+    
+    html += `
+        <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm); text-align: center;">
+            <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Air Quality</h4>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">${aqi.level === 'Good' ? '✅' : aqi.level === 'Moderate' ? '⚠️' : '🔴'}</div>
+            <p style="font-size: 1.5rem; font-weight: 700; color: ${aqiColors[aqi.level] || '#f59e0b'}; margin-bottom: 0.25rem;">
+                AQI ${aqi.aqi}
+            </p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                ${aqi.level}
+            </p>
+        </div>
+    `;
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+async function loadLifestyleSpending() {
+    const { FoodTracking } = await import('./food-tracking.js');
+    const { BankAnalysis } = await import('./bank-analysis.js');
+    
+    const foodTracker = new FoodTracking();
+    const bankAnalysis = new BankAnalysis();
+    
+    const container = document.getElementById('lifestyle-spending');
+    if (!container) return;
+    
+    try {
+        const [foodSpending, bankSpending] = await Promise.all([
+            foodTracker.getFoodSpending(userId, 30),
+            bankAnalysis.getSpendingAnalysis(userId, 30)
+        ]);
+        
+        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">';
+        
+        // Food Spending
+        html += `
+            <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Food Orders (30 days)</h4>
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.25rem;">
+                    ₹${foodSpending.totalSpent.toFixed(0)}
+                </p>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    ${foodSpending.orderCount} orders • Avg: ₹${foodSpending.averageOrderValue.toFixed(0)}
+                </p>
+                ${foodSpending.alcoholSpending > 0 ? `
+                    <p style="font-size: 0.875rem; color: #dc2626; margin-top: 0.5rem;">
+                        ⚠️ ₹${foodSpending.alcoholSpending.toFixed(0)} on alcohol
+                    </p>
+                ` : ''}
+            </div>
+        `;
+        
+        // Bank Spending
+        html += `
+            <div style="padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Health Spending</h4>
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-red); margin-bottom: 0.25rem;">
+                    ₹${bankSpending.totalHealthSpending.toFixed(0)}
+                </p>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    ${bankSpending.healthVisits} health-related transactions
+                </p>
+            </div>
+        `;
+        
+        // Alcohol Spending
+        if (bankSpending.totalAlcoholSpending > 0) {
+            html += `
+                <div style="padding: 1rem; background: #FEF2F2; border-radius: var(--radius-sm); border-left: 4px solid #DC2626;">
+                    <h4 style="font-weight: 600; color: #DC2626; margin-bottom: 0.75rem;">⚠️ Alcohol Spending</h4>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: #DC2626; margin-bottom: 0.25rem;">
+                        ₹${bankSpending.totalAlcoholSpending.toFixed(0)}
+                    </p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                        ${bankSpending.alcoholFrequency} transactions detected
+                    </p>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        
+        // Recommendations
+        const allRecommendations = [...foodSpending.recommendations, ...bankSpending.recommendations];
+        if (allRecommendations.length > 0) {
+            html += `
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-gray-50); border-radius: var(--radius-sm);">
+                    <h4 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">Insights</h4>
+                    ${allRecommendations.map(rec => `
+                        <div style="padding: 0.75rem; background: ${rec.priority === 'high' ? '#FEF2F2' : '#FEF3C7'}; border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">${rec.message}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading lifestyle spending:', error);
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">Import food orders or bank statements to see spending analysis.</p>';
+    }
+}
+
+// Mood tracking functions
+let selectedMoodValue = null;
+
+function selectMood(mood) {
+    selectedMoodValue = mood;
+    document.getElementById('selected-mood').value = mood;
+    
+    // Update button styles
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.style.border = '2px solid var(--border-light)';
+        btn.style.background = 'white';
+    });
+    
+    const selectedBtn = document.querySelector(`[data-mood="${mood}"]`);
+    if (selectedBtn) {
+        selectedBtn.style.border = '2px solid var(--primary-red)';
+        selectedBtn.style.background = '#FEF2F2';
+    }
+}
+
+async function openMoodModal() {
+    const modal = document.getElementById('mood-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('mood-form').reset();
+        selectedMoodValue = null;
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+            btn.style.border = '2px solid var(--border-light)';
+            btn.style.background = 'white';
+        });
+    }
+}
+
+function closeMoodModal() {
+    const modal = document.getElementById('mood-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+
+async function saveMood() {
+    const form = document.getElementById('mood-form');
+    const statusDiv = document.getElementById('mood-status');
+    const mood = document.getElementById('selected-mood').value;
+    const notes = document.getElementById('mood-notes').value;
+    
+    if (!mood) {
+        statusDiv.textContent = 'Please select a mood';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Saving mood...';
+        statusDiv.style.color = '#10b981';
+        
+        const { MoodTracker } = await import('./mood-tracker.js');
+        const moodTracker = new MoodTracker();
+        
+        await moodTracker.logMood(userId, mood, {}, notes);
+        
+        statusDiv.textContent = '✓ Mood logged successfully';
+        statusDiv.style.color = '#10b981';
+        
+        // Reload mood display
+        await loadMoodAndWeather();
+        
+        // Close modal after 1 second
+        setTimeout(() => {
+            closeMoodModal();
+        }, 1000);
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+// Lifestyle import functions
+function openLifestyleModal() {
+    const modal = document.getElementById('lifestyle-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('manual-food-date').valueAsDate = new Date();
+    }
+}
+
+function closeLifestyleModal() {
+    const modal = document.getElementById('lifestyle-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+
+async function importFoodOrders() {
+    const fileInput = document.getElementById('food-orders-file');
+    const platform = document.getElementById('food-platform').value;
+    const statusDiv = document.getElementById('food-orders-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Importing food orders...';
+        statusDiv.style.color = '#10b981';
+        
+        const { FoodTracking } = await import('./food-tracking.js');
+        const foodTracker = new FoodTracking();
+        const result = await foodTracker.importFoodData(fileInput.files[0], userId, platform);
+        
+        statusDiv.textContent = `✓ Imported ${result.count} orders successfully`;
+        statusDiv.style.color = '#10b981';
+        
+        await loadLifestyleSpending();
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function addManualFoodOrder() {
+    const form = document.getElementById('manual-food-form');
+    const statusDiv = document.getElementById('manual-food-status');
+    
+    const platform = document.getElementById('manual-platform').value;
+    const restaurant = document.getElementById('manual-restaurant').value;
+    const items = document.getElementById('manual-items').value.split(',').map(i => i.trim());
+    const amount = parseFloat(document.getElementById('manual-amount').value);
+    const dateStr = document.getElementById('manual-food-date').value;
+    
+    if (!restaurant || !items.length || !amount || !dateStr) {
+        statusDiv.textContent = 'Please fill all fields';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Adding order...';
+        statusDiv.style.color = '#10b981';
+        
+        const { FoodTracking } = await import('./food-tracking.js');
+        const foodTracker = new FoodTracking();
+        
+        await foodTracker.logFoodOrder(userId, {
+            platform,
+            restaurant,
+            items,
+            amount,
+            date: new Date(dateStr).toISOString()
+        });
+        
+        statusDiv.textContent = '✓ Order added successfully';
+        statusDiv.style.color = '#10b981';
+        
+        await loadLifestyleSpending();
+        form.reset();
+        document.getElementById('manual-food-date').valueAsDate = new Date();
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function importBankStatement() {
+    const fileInput = document.getElementById('bank-statement-file');
+    const statusDiv = document.getElementById('bank-statement-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Analyzing bank statement...';
+        statusDiv.style.color = '#10b981';
+        
+        const { BankAnalysis } = await import('./bank-analysis.js');
+        const bankAnalysis = new BankAnalysis();
+        const result = await bankAnalysis.parseBankStatement(fileInput.files[0], userId);
+        
+        statusDiv.textContent = `✓ Analyzed ${result.transactions} transactions. Health: ₹${result.analysis.totalHealthSpending.toFixed(0)}, Alcohol: ₹${result.analysis.totalAlcoholSpending.toFixed(0)}`;
+        statusDiv.style.color = '#10b981';
+        
+        await loadLifestyleSpending();
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+// Setup mood form
+function setupMoodListeners() {
+    const moodForm = document.getElementById('mood-form');
+    if (moodForm) {
+        moodForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveMood();
+        });
+    }
+    
+    const manualFoodForm = document.getElementById('manual-food-form');
+    if (manualFoodForm) {
+        manualFoodForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addManualFoodOrder();
+        });
+    }
 }
 
 async function loadHealthMetrics() {
@@ -794,6 +1182,13 @@ window.connectGoogleFit = connectGoogleFit;
 window.importSamsungHealth = importSamsungHealth;
 window.importFitbit = importFitbit;
 window.importSleepApp = importSleepApp;
+window.openMoodModal = openMoodModal;
+window.closeMoodModal = closeMoodModal;
+window.selectMood = selectMood;
+window.openLifestyleModal = openLifestyleModal;
+window.closeLifestyleModal = closeLifestyleModal;
+window.importFoodOrders = importFoodOrders;
+window.importBankStatement = importBankStatement;
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);
