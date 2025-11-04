@@ -57,10 +57,15 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">My Health Vault</div>
-            <div class="nav-links">
-                <a href="visits.html" class="nav-link">Visits</a>
-                <a href="period-tracker.html" class="nav-link">Period Tracker</a>
-                <button onclick="logout()" class="btn-secondary">Logout</button>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div id="demo-mode-indicator" class="hidden" style="display: none; padding: 0.375rem 0.75rem; background: #FEF3C7; color: #92400E; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600;">
+                    🎭 Demo Mode
+                </div>
+                <div class="nav-links">
+                    <a href="visits.html" class="nav-link">Visits</a>
+                    <a href="period-tracker.html" class="nav-link">Period Tracker</a>
+                    <button onclick="logout()" class="btn-secondary">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
