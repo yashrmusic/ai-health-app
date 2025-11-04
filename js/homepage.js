@@ -72,12 +72,19 @@ async function loadDashboard() {
     medicationReminders = new MedicationRemindersClass();
     dynamicCategories = new DynamicCategoriesClass();
     
+    // Initialize AI Companion
+    const { AICompanion } = await import('./ai-companion.js');
+    const aiCompanion = new AICompanion();
+    await aiCompanion.initialize(userId);
+    
     // Load secondary data
     await Promise.all([
         loadCurrentBodyHealth(),
         loadHealthRecommendations(),
         loadMedicationReminders(),
-        loadCategoryProgress()
+        loadCategoryProgress(),
+        loadAICompanionInsights(),
+        loadDietRecommendations()
     ]);
     
     await loadHealthTrends();
