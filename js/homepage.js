@@ -38,6 +38,7 @@ async function init() {
     
     await loadDashboard();
     setupEventListeners();
+    setupHealthImportListeners();
     
     // Initialize icons
     if (typeof lucide !== 'undefined') {
