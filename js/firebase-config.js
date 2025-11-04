@@ -54,7 +54,8 @@ export async function initializeFirebase() {
 
 export function signInWithEmail(auth, email, password) {
     if (!auth) {
-        throw new Error('Firebase not initialized. Please check your configuration.');
+        // Return a helpful error message instead of throwing
+        throw new Error('Firebase not configured. Please set up Firebase or use demo mode. To configure: Set __firebase_config variable with your Firebase configuration.');
     }
     return signInWithEmailAndPassword(auth, email, password);
 }
@@ -82,7 +83,7 @@ export async function signOut() {
 
 export async function signInWithGoogle(auth) {
     if (!auth) {
-        throw new Error('Firebase not initialized. Please check your configuration.');
+        throw new Error('Firebase not configured. Please set up Firebase to use Google Sign-In. To configure: Set __firebase_config variable with your Firebase configuration.');
     }
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
