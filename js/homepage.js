@@ -444,11 +444,138 @@ function closeWeightModal() {
     if (form) form.reset();
 }
 
+// Health Import Functions
+async function openHealthImportModal() {
+    const modal = document.getElementById('health-import-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.getElementById('manual-metric-date').valueAsDate = new Date();
+    }
+}
+
+function closeHealthImportModal() {
+    const modal = document.getElementById('health-import-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+
+async function importAppleHealth() {
+    const fileInput = document.getElementById('apple-health-file');
+    const statusDiv = document.getElementById('apple-health-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.textContent = 'Please select a file';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Importing...';
+        statusDiv.style.color = '#10b981';
+        
+        const { HealthDataImporter } = await import('./health-import.js');
+        const importer = new HealthDataImporter();
+        const result = await importer.importAppleHealthXML(fileInput.files[0], userId);
+        
+        statusDiv.textContent = `✓ Imported ${result.records} records across ${result.metrics.length} metrics`;
+        statusDiv.style.color = '#10b981';
+        
+        // Reload health metrics
+        await loadCurrentBodyHealth();
+        
+        // Clear file input
+        fileInput.value = '';
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function connectGoogleFit() {
+    const statusDiv = document.getElementById('google-fit-status');
+    
+    try {
+        statusDiv.textContent = 'Connecting to Google Fit...';
+        statusDiv.style.color = '#10b981';
+        
+        const { GoogleFitAuth } = await import('./health-import.js');
+        const googleFitAuth = new GoogleFitAuth();
+        
+        if (!googleFitAuth.isConfigured()) {
+            statusDiv.textContent = 'Google Fit not configured. Please set __google_fit_client_id.';
+            statusDiv.style.color = '#DC2626';
+            return;
+        }
+        
+        await googleFitAuth.authorize();
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+async function addManualHealthData() {
+    const form = document.getElementById('manual-health-form');
+    const statusDiv = document.getElementById('manual-entry-status');
+    
+    const metricType = document.getElementById('manual-metric-type').value;
+    const value = parseFloat(document.getElementById('manual-metric-value').value);
+    const dateStr = document.getElementById('manual-metric-date').value;
+    
+    if (!value || !dateStr) {
+        statusDiv.textContent = 'Please fill all fields';
+        statusDiv.style.color = '#DC2626';
+        return;
+    }
+    
+    try {
+        statusDiv.textContent = 'Adding data...';
+        statusDiv.style.color = '#10b981';
+        
+        const { HealthDataImporter } = await import('./health-import.js');
+        const importer = new HealthDataImporter();
+        const date = new Date(dateStr);
+        
+        await importer.addManualData(userId, metricType, value, date);
+        
+        statusDiv.textContent = '✓ Data added successfully';
+        statusDiv.style.color = '#10b981';
+        
+        // Reload health metrics
+        await loadCurrentBodyHealth();
+        
+        // Reset form
+        form.reset();
+        document.getElementById('manual-metric-date').valueAsDate = new Date();
+    } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#DC2626';
+    }
+}
+
+// Setup manual entry form
+function setupHealthImportListeners() {
+    const manualForm = document.getElementById('manual-health-form');
+    if (manualForm) {
+        manualForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addManualHealthData();
+        });
+    }
+}
+
 // Make functions globally available
 window.closeBMIModal = closeBMIModal;
 window.closeWeightModal = closeWeightModal;
 window.syncHealthData = syncHealthData;
 window.markMedicationTaken = markMedicationTaken;
+window.openHealthImportModal = openHealthImportModal;
+window.closeHealthImportModal = closeHealthImportModal;
+window.importAppleHealth = importAppleHealth;
+window.connectGoogleFit = connectGoogleFit;
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);

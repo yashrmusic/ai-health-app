@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Fit Authorization</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--bg-gray-50, #fafafa);
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Processing Google Fit Authorization...</h2>
+        <p>Please wait while we connect your account.</p>
+    </div>
+    <script type="module">
+        import { GoogleFitAuth, HealthDataImporter } from './js/health-import.js';
+        
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const user = JSON.parse(userStr);
+        const userId = user.uid;
+        
+        const googleFitAuth = new GoogleFitAuth();
+        const accessToken = googleFitAuth.getAccessTokenFromCallback();
+        
+        if (accessToken) {
+            // Save token
+            googleFitAuth.saveAccessToken(userId, accessToken);
+            
+            // Import data for last 30 days
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            const importer = new HealthDataImporter();
+            try {
+                const result = await importer.importGoogleFit(userId, accessToken, startDate, endDate);
+                alert(`Successfully imported ${result.records} health records!`);
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Connected to Google Fit, but there was an error importing data: ' + error.message);
+            }
+        }
+        
+        // Redirect back to homepage
+        window.location.href = 'homepage.html';
+    </script>
+</body>
+</html>
+

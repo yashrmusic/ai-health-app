@@ -25,6 +25,23 @@ export class HealthDataSync {
 
     // Sync steps data
     async syncSteps(userId, startDate, endDate) {
+        // Check for imported data first
+        const { demoDataManager } = await import('./demo-data.js');
+        const { HealthDataImporter } = await import('./health-import.js');
+        const importer = new HealthDataImporter();
+        
+        const key = `health_sync_${userId}_steps`;
+        const imported = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        if (imported.length > 0) {
+            // Use imported data
+            return imported.filter(d => {
+                const date = new Date(d.startDate);
+                return date >= startDate && date <= endDate;
+            });
+        }
+        
+        // Try to get from Apple Health/Google Fit
         const steps = await this.getStepsData(startDate, endDate);
         if (steps && steps.length > 0) {
             await this.saveHealthData(userId, 'steps', steps);
@@ -34,6 +51,16 @@ export class HealthDataSync {
 
     // Sync heart rate
     async syncHeartRate(userId, startDate, endDate) {
+        const key = `health_sync_${userId}_heartRate`;
+        const imported = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        if (imported.length > 0) {
+            return imported.filter(d => {
+                const date = new Date(d.startDate);
+                return date >= startDate && date <= endDate;
+            });
+        }
+        
         const heartRate = await this.getHeartRateData(startDate, endDate);
         if (heartRate && heartRate.length > 0) {
             await this.saveHealthData(userId, 'heartRate', heartRate);
@@ -43,6 +70,16 @@ export class HealthDataSync {
 
     // Sync sleep data
     async syncSleep(userId, startDate, endDate) {
+        const key = `health_sync_${userId}_sleep`;
+        const imported = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        if (imported.length > 0) {
+            return imported.filter(d => {
+                const date = new Date(d.startDate);
+                return date >= startDate && date <= endDate;
+            });
+        }
+        
         const sleep = await this.getSleepData(startDate, endDate);
         if (sleep && sleep.length > 0) {
             await this.saveHealthData(userId, 'sleep', sleep);
@@ -52,6 +89,16 @@ export class HealthDataSync {
 
     // Sync blood oxygen
     async syncBloodOxygen(userId, startDate, endDate) {
+        const key = `health_sync_${userId}_bloodOxygen`;
+        const imported = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        if (imported.length > 0) {
+            return imported.filter(d => {
+                const date = new Date(d.startDate);
+                return date >= startDate && date <= endDate;
+            });
+        }
+        
         const bloodO2 = await this.getBloodOxygenData(startDate, endDate);
         if (bloodO2 && bloodO2.length > 0) {
             await this.saveHealthData(userId, 'bloodOxygen', bloodO2);
@@ -61,6 +108,16 @@ export class HealthDataSync {
 
     // Sync weight
     async syncWeight(userId, startDate, endDate) {
+        const key = `health_sync_${userId}_weight`;
+        const imported = JSON.parse(localStorage.getItem(key) || '[]');
+        
+        if (imported.length > 0) {
+            return imported.filter(d => {
+                const date = new Date(d.startDate);
+                return date >= startDate && date <= endDate;
+            });
+        }
+        
         const weight = await this.getWeightData(startDate, endDate);
         if (weight && weight.length > 0) {
             await this.saveHealthData(userId, 'weight', weight);
